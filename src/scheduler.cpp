@@ -21,27 +21,32 @@ class Node {
 
   public:
     Node(string letter, int value, int verticeNum);
+    Node();
     int getVerticeNum();
     int getValue();
     string getLetter();
 };
 
-Node::Node(string letter, int value, int verticeNum) {
-  this->letter = letter;
-  this->value = value;
-  this->verticeNum = verticeNum;
+Node::Node(string letter1, int value1, int verticeNum1) {
+  letter = letter1;
+  value = value1;
+  verticeNum = verticeNum1;
+}
+
+Node::Node() {
+  
 }
 
 int Node::getVerticeNum() {
-  return this->verticeNum;
+  return verticeNum;
 }
 
 string Node::getLetter() {
-  return this->letter;
+  return letter;
 }
 
 int Node::getValue() {
-  return this->value;
+  return value;
 }
 
 class Graph {
@@ -50,15 +55,15 @@ class Graph {
 
   public:
 
-    Graph(Node numberOfVertices);
+    Graph(Node* numberOfVertices);
     void addEdge(Node src, Node dest);
     void BFS(Node startVertex);
 };
 
-Graph::Graph(Node numberOfVertices) {
-  this->numberOfVertices = numberOfVertices;
-  int verticeNum = numberOfVertices.getVerticeNum();
-  adj = new list<Node>[verticeNum];
+Graph::Graph(Node* numberOfVertices) {
+  this->numberOfVertices = *numberOfVertices;
+  int verticeNum = numberOfVertices->getVerticeNum();
+  adj = new list<Node>[1000];
 }
 
 void Graph::addEdge(Node parent, Node child) {
@@ -68,8 +73,8 @@ void Graph::addEdge(Node parent, Node child) {
 void Graph::BFS(Node node) {
   
   int verticeNum = node.getVerticeNum();
-  bool* visited = new bool[verticeNum];
-  for(int i = 0; i < verticeNum; i++) {
+  bool* visited = new bool[50];
+  for(int i = 0; i < 50; i++) {
     visited[i] = false;
   }
 
@@ -93,7 +98,7 @@ void Graph::BFS(Node node) {
 
       if(!visited[i]) {
         visited[i] = true;
-        queue.push_back(adj[node.getVerticeNum()].begin());
+        queue.push_back(node);
       }
     }
 
@@ -108,16 +113,28 @@ int main(int argc, char* argv[])
   ifstream file(filename);
   string input;
 
-  Node newNode = Node("asda",2,2);
+  Node* newNode = new Node("asda",2,0);
+  Node* newNode0 = new Node("asda",2,0);
+  Node* newNode1 = new Node("asda",2,1);
+  Node* newNode2 = new Node("asda",2,2);
+  Node* newNode3 = new Node("asda",2,3);
+  Node* newNode4 = new Node("asda",2,4);
+  Node* newNode5 = new Node("asda",2,5);
+  Node* newNode6 = new Node("asda",2,6);
+  Node* newNode7 = new Node("asda",2,7);
 
-  Graph graph(newNode);
-  graph.addEdge(0,1);
-  graph.addEdge(0,2);
-  graph.addEdge(0,3);
-  graph.addEdge(1,4);
-  graph.addEdge(1,5);
-  graph.addEdge(2,6);
-  graph.addEdge(3,7);
+  Graph graph(newNode0);
+  graph.addEdge(*newNode0,*newNode1);
+  graph.addEdge(*newNode0,*newNode2);
+  graph.addEdge(*newNode0,*newNode3);
+  graph.addEdge(*newNode1,*newNode4);
+  graph.addEdge(*newNode1,*newNode5);
+  graph.addEdge(*newNode2,*newNode6);
+  graph.addEdge(*newNode3,*newNode7);
+
+  cout << "Breadth First Traversal ";
+	cout << "(starting from vertex 0) \n";
+	graph.BFS(*newNode0);
 
   if(!file)
   {
