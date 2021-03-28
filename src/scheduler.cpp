@@ -9,6 +9,8 @@ Date: <06/04/2021> */
 #include<stdlib.h>
 #include <sstream>
 #include <list>
+#include <vector>
+#include <math.h>
 
 #include "data_structs.h"
 
@@ -18,6 +20,7 @@ class Node {
   string letter;
   int value;
   int verticeNum;
+  bool visited;
 
   public:
     Node(string letter, int value, int verticeNum);
@@ -25,12 +28,15 @@ class Node {
     int getVerticeNum();
     int getValue();
     string getLetter();
+    bool getVisited();
+    void setVisited(bool value);
 };
 
 Node::Node(string letter1, int value1, int verticeNum1) {
   letter = letter1;
   value = value1;
   verticeNum = verticeNum1;
+  visited = false;
 }
 
 Node::Node() {
@@ -49,21 +55,29 @@ int Node::getValue() {
   return value;
 }
 
+bool Node::getVisited() {
+  return visited;
+}
+
+void Node::setVisited(bool value) {
+  visited = value;
+}
+
 class Graph {
   Node numberOfVertices;
-  list<Node>* adj;
+  vector<Node>* adj;
 
   public:
 
-    Graph(Node* numberOfVertices);
+    Graph(Node numberOfVertices);
     void addEdge(Node src, Node dest);
     void BFS(Node startVertex);
 };
 
-Graph::Graph(Node* numberOfVertices) {
-  this->numberOfVertices = *numberOfVertices;
-  int verticeNum = numberOfVertices->getVerticeNum();
-  adj = new list<Node>[1000];
+Graph::Graph(Node numberOfVertices) {
+  this->numberOfVertices = numberOfVertices;
+  int verticeNum = numberOfVertices.getVerticeNum();
+  adj = new vector<Node>[1000];
 }
 
 void Graph::addEdge(Node parent, Node child) {
@@ -73,19 +87,20 @@ void Graph::addEdge(Node parent, Node child) {
 void Graph::BFS(Node node) {
   
   int verticeNum = node.getVerticeNum();
-  bool* visited = new bool[50];
-  for(int i = 0; i < 50; i++) {
-    visited[i] = false;
-  }
+  //list<bool>* visited = new list<bool>[50];
+  //for(int i = 0; i < 50; i++) {
+    //visited[i] = false;
+  //}
 
   list<Node> queue;
 
   //mark current node visited and enqueue
-  visited[node.getVerticeNum()] = true;
+  node.setVisited(true);
   queue.push_back(node);
 
   list<Node>::iterator i;
 
+  int adjCounter = 0;
   while(!queue.empty()) {
     node = queue.front();
     cout << "letter: " << node.getLetter() << endl;
@@ -93,14 +108,17 @@ void Graph::BFS(Node node) {
     cout << "value: " << node.getValue() << endl;
     queue.pop_front();
 
-    int adjSize = adj->size();
-    for(int i = 0; i < adjSize; i++) {
-
-      if(!visited[i]) {
-        visited[i] = true;
-        queue.push_back(node);
+    int adjSize = adj[adjCounter].size();
+    //vector<Node> adj = new vector<int>[100];
+    for (int i = 0; i != adjSize; ++i) {
+      auto test = adj[adjCounter].at(i);
+      if(!adj[adjCounter].at(i).getVisited()) {
+        adj[adjCounter].at(i).setVisited(true);
+        queue.push_back(adj[adjCounter].at(i));
       }
     }
+
+    adjCounter++;
 
   }
 }
@@ -114,16 +132,16 @@ int main(int argc, char* argv[])
   string input;
 
   Node* newNode = new Node("asda",2,0);
-  Node* newNode0 = new Node("asda",2,0);
-  Node* newNode1 = new Node("asda",2,1);
-  Node* newNode2 = new Node("asda",2,2);
-  Node* newNode3 = new Node("asda",2,3);
-  Node* newNode4 = new Node("asda",2,4);
-  Node* newNode5 = new Node("asda",2,5);
-  Node* newNode6 = new Node("asda",2,6);
-  Node* newNode7 = new Node("asda",2,7);
+  Node* newNode0 = new Node("a",2,0);
+  Node* newNode1 = new Node("b",2,1);
+  Node* newNode2 = new Node("c",2,2);
+  Node* newNode3 = new Node("d",2,3);
+  Node* newNode4 = new Node("e",2,4);
+  Node* newNode5 = new Node("f",2,5);
+  Node* newNode6 = new Node("g",2,6);
+  Node* newNode7 = new Node("h",2,7);
 
-  Graph graph(newNode0);
+  Graph graph(*newNode0);
   graph.addEdge(*newNode0,*newNode1);
   graph.addEdge(*newNode0,*newNode2);
   graph.addEdge(*newNode0,*newNode3);
@@ -142,15 +160,34 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  vector<string> numbers;
+  vector<string> letters;
   while(getline(file, input)) {
     cout << input << endl;
     cout << "end of line" << endl;
 
     istringstream columns(input);
     string column;
-    while(columns >> column) {
-      cout << column <<endl;
+    if(numbers.empty()) {
+      while(columns >> column) {
+        cout << column <<endl;
+        numbers.push_back(column);
+      }
+    } else {
+      while(columns >> column) {
+        if(column != ".") {
+          letters.push_back(column);
+        }
+        cout << column <<endl;
+      }
+      cout << numbers.size() << " " << letters.size() <<endl;
     }
+  }
+
+  int nodeCount =pow(numbers.size(), letters.size();
+  Graph graph();
+  for( string letter : letters) {
+    
   }
 
   cout << "hello world" << endl;
