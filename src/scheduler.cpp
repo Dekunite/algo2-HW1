@@ -64,19 +64,22 @@ void Node::setVisited(bool value) {
 }
 
 class Graph {
-  Node numberOfVertices;
-  vector<Node>* adj;
+  Node numberOfVertice;
+  //vector<Node>* adj;
 
   public:
 
-    Graph(Node numberOfVertices);
+    Graph(Node numberOfVertice);
     void addEdge(Node src, Node dest);
     void BFS(Node startVertex);
+
+    vector<Node>* adj;
 };
 
-Graph::Graph(Node numberOfVertices) {
-  this->numberOfVertices = numberOfVertices;
-  int verticeNum = numberOfVertices.getVerticeNum();
+Graph::Graph(Node numberOfVertice) {
+  this->numberOfVertice = numberOfVertice;
+  int verticeNum = numberOfVertice.getVerticeNum();
+  //adj boyutunu dinamik hale getir
   adj = new vector<Node>[1000];
 }
 
@@ -123,14 +126,50 @@ void Graph::BFS(Node node) {
   }
 }
 
+bool checkSummationRuleStart(Node operand1, Node operand2, Node result) {
+  int carry = 0;
+  if ((operand1.getValue() + operand2.getValue()) >= 10) {
+    carry = 1;
+  }
+
+  if ((operand1.getValue() + operand2.getValue()) == (result.getValue() + 10 * carry)) {
+    return true;
+  }
+  return false;
+}
+
+bool checkSummationRule(Node operand1, Node operand2, Node result, int carry1) {
+  int carry2 = 0;
+  if ((operand1.getValue() + operand2.getValue() + carry1) >= 10) {
+    carry2 = 1;
+  }
+
+  if ((operand1.getValue() + operand2.getValue() + carry1) == (result.getValue() + 10 * carry2)) {
+    return true;
+  }
+  return false;
+}
+
+bool checkSummationRuleEnd(Node operand, int carry) {
+  if(operand.getValue() == carry) {
+    return true;
+  }
+  return false;
+}
+
 int main(int argc, char* argv[])
 {
   const char* filename = "TWO TWO FOUR.txt";
+  const string searchMethod = "BFS";
+  const string operand1 = "TWO";
+  const string operand2 = "TWO";
+  const string result = "FOUR";
   //const char* filename = argv[1];
 
   ifstream file(filename);
   string input;
 
+  /*
   Node* newNode = new Node("asda",2,0);
   Node* newNode0 = new Node("a",2,0);
   Node* newNode1 = new Node("b",2,1);
@@ -153,6 +192,7 @@ int main(int argc, char* argv[])
   cout << "Breadth First Traversal ";
 	cout << "(starting from vertex 0) \n";
 	graph.BFS(*newNode0);
+  */
 
   if(!file)
   {
@@ -162,6 +202,7 @@ int main(int argc, char* argv[])
 
   vector<string> numbers;
   vector<string> letters;
+  //get inputs line by line
   while(getline(file, input)) {
     cout << input << endl;
     cout << "end of line" << endl;
@@ -184,10 +225,25 @@ int main(int argc, char* argv[])
     }
   }
 
-  int nodeCount =pow(numbers.size(), letters.size();
-  Graph graph();
+  int nodeCount =pow(numbers.size(), letters.size());
+  Node* startNode = new Node("start",0,0);
+  Graph graph(*startNode);
+  graph.adj[0].push_back(*startNode);
+  int verticeCounterLetter = 0;
+  int verticeCounterNumber = 0;
+  int verticeCounterCopy = 0;
+
   for( string letter : letters) {
-    
+    for(int i = 0; i < graph.adj[0].size(); i++) {
+      for( string number : numbers) {
+        graph.addEdge(graph.adj[verticeCounterCopy].at(i), *new Node(letter, stoi(number), verticeCounterNumber)); //Add a new node with every value to parent
+        verticeCounterNumber++;
+
+      }
+      verticeCounterCopy++;
+    }
+    verticeCounterLetter++;
+
   }
 
   cout << "hello world" << endl;
