@@ -16,25 +16,41 @@ Date: <06/04/2021> */
 
 using namespace std;
 
-class Node {
+class Core {
+  public:
   string letter;
   int value;
+
+  Core(string letter, int value);
+};
+
+Core::Core (string letter1, int value1) {
+  letter = letter1;
+  value = value1;
+}
+
+class Node {
+  //string letter;
+  //int value;
+  vector<Core>* cores;
   int verticeNum;
   bool visited;
 
   public:
-    Node(string letter, int value, int verticeNum);
+    Node(Core core, int verticeNum);
     Node();
     int getVerticeNum();
-    int getValue();
-    string getLetter();
+    //int getValue();
+    //string getLetter();
     bool getVisited();
     void setVisited(bool value);
+    Core getCore(int coreNumber);
+    void addCore(Core core);
 };
 
-Node::Node(string letter1, int value1, int verticeNum1) {
-  letter = letter1;
-  value = value1;
+Node::Node (Core core, int verticeNum1) {
+  cores = new vector<Core>;
+  cores->push_back(core);
   verticeNum = verticeNum1;
   visited = false;
 }
@@ -47,14 +63,6 @@ int Node::getVerticeNum() {
   return verticeNum;
 }
 
-string Node::getLetter() {
-  return letter;
-}
-
-int Node::getValue() {
-  return value;
-}
-
 bool Node::getVisited() {
   return visited;
 }
@@ -63,28 +71,36 @@ void Node::setVisited(bool value) {
   visited = value;
 }
 
+Core Node::getCore(int coreNum) {
+  return cores->at(coreNum);
+}
+
+void Node::addCore(Core core) {
+  cores->push_back(core);
+}
+
 class Graph {
-  Node numberOfVertice;
+  //Node* vertex;
   //vector<Node>* adj;
 
   public:
-
-    Graph(Node numberOfVertice);
-    void addEdge(Node src, Node dest);
+    Node* vertex;
+    Graph(Node* vertex);
+    void addEdge(Node* src, Node* dest);
     void BFS(Node startVertex);
 
     vector<Node>* adj;
 };
 
-Graph::Graph(Node numberOfVertice) {
-  this->numberOfVertice = numberOfVertice;
-  int verticeNum = numberOfVertice.getVerticeNum();
+Graph::Graph(Node* vertex1) {
+  vertex = vertex1;
+  int verticeNum = vertex1->getVerticeNum();
   //adj boyutunu dinamik hale getir
   adj = new vector<Node>[1000];
 }
 
-void Graph::addEdge(Node parent, Node child) {
-  adj[parent.getVerticeNum()].push_back(child);
+void Graph::addEdge(Node* parent, Node* child) {
+  adj[parent->getVerticeNum()].push_back(*child);
 }
 
 void Graph::BFS(Node node) {
@@ -106,9 +122,7 @@ void Graph::BFS(Node node) {
   int adjCounter = 0;
   while(!queue.empty()) {
     node = queue.front();
-    cout << "letter: " << node.getLetter() << endl;
     cout << "Vertice Num: " << node.getVerticeNum() << endl;
-    cout << "value: " << node.getValue() << endl;
     queue.pop_front();
 
     int adjSize = adj[adjCounter].size();
@@ -126,32 +140,32 @@ void Graph::BFS(Node node) {
   }
 }
 
-bool checkSummationRuleStart(Node operand1, Node operand2, Node result) {
+bool checkSummationRuleStart(Core operand1, Core operand2, Core result) {
   int carry = 0;
-  if ((operand1.getValue() + operand2.getValue()) >= 10) {
+  if ((operand1.value + operand2.value) >= 10) {
     carry = 1;
   }
 
-  if ((operand1.getValue() + operand2.getValue()) == (result.getValue() + 10 * carry)) {
+  if ((operand1.value + operand2.value) == (result.value + 10 * carry)) {
     return true;
   }
   return false;
 }
 
-bool checkSummationRule(Node operand1, Node operand2, Node result, int carry1) {
+bool checkSummationRule(Core operand1, Core operand2, Core result, int carry1) {
   int carry2 = 0;
-  if ((operand1.getValue() + operand2.getValue() + carry1) >= 10) {
+  if ((operand1.value + operand2.value + carry1) >= 10) {
     carry2 = 1;
   }
 
-  if ((operand1.getValue() + operand2.getValue() + carry1) == (result.getValue() + 10 * carry2)) {
+  if ((operand1.value + operand2.value + carry1) == (result.value + 10 * carry2)) {
     return true;
   }
   return false;
 }
 
-bool checkSummationRuleEnd(Node operand, int carry) {
-  if(operand.getValue() == carry) {
+bool checkSummationRuleEnd(Core operand, int carry) {
+  if(operand.value == carry) {
     return true;
   }
   return false;
@@ -169,30 +183,29 @@ int main(int argc, char* argv[])
   ifstream file(filename);
   string input;
 
-  /*
-  Node* newNode = new Node("asda",2,0);
-  Node* newNode0 = new Node("a",2,0);
-  Node* newNode1 = new Node("b",2,1);
-  Node* newNode2 = new Node("c",2,2);
-  Node* newNode3 = new Node("d",2,3);
-  Node* newNode4 = new Node("e",2,4);
-  Node* newNode5 = new Node("f",2,5);
-  Node* newNode6 = new Node("g",2,6);
-  Node* newNode7 = new Node("h",2,7);
+  Core* newCore = new Core("a",1);
+  Node* newNode0 = new Node(*newCore,0);
+  Node* newNode1 = new Node(*newCore,1);
+  Node* newNode2 = new Node(*newCore,2);
+  Node* newNode3 = new Node(*newCore,3);
+  Node* newNode4 = new Node(*newCore,4);
+  Node* newNode5 = new Node(*newCore,5);
+  Node* newNode6 = new Node(*newCore,6);
+  Node* newNode7 = new Node(*newCore,7);
 
-  Graph graph(*newNode0);
-  graph.addEdge(*newNode0,*newNode1);
-  graph.addEdge(*newNode0,*newNode2);
-  graph.addEdge(*newNode0,*newNode3);
-  graph.addEdge(*newNode1,*newNode4);
-  graph.addEdge(*newNode1,*newNode5);
-  graph.addEdge(*newNode2,*newNode6);
-  graph.addEdge(*newNode3,*newNode7);
+  Graph graph(newNode0);
+  graph.addEdge(newNode0,newNode1);
+  graph.addEdge(newNode0,newNode2);
+  graph.addEdge(newNode0,newNode3);
+  graph.addEdge(newNode1,newNode6);
+  graph.addEdge(newNode1,newNode7);
+  graph.addEdge(newNode2,newNode5);
+  graph.addEdge(newNode3,newNode4);
 
   cout << "Breadth First Traversal ";
 	cout << "(starting from vertex 0) \n";
 	graph.BFS(*newNode0);
-  */
+  
 
   if(!file)
   {
@@ -200,9 +213,10 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vector<string> numbers;
-  vector<string> letters;
+  vector<int> numbers = {0,1,2,3,4,5,6,7,8,9};
+  vector<string> letters = {"T","W","O","F","U","R"};
   //get inputs line by line
+  /*
   while(getline(file, input)) {
     cout << input << endl;
     cout << "end of line" << endl;
@@ -224,19 +238,25 @@ int main(int argc, char* argv[])
       cout << numbers.size() << " " << letters.size() <<endl;
     }
   }
+  */
 
   int nodeCount =pow(numbers.size(), letters.size());
-  Node* startNode = new Node("start",0,0);
-  Graph graph(*startNode);
-  graph.adj[0].push_back(*startNode);
+
+  //Core* newCore = new Core("start",1);
+  //Node* startNode = new Node(newCore, 0);
+  //Graph graph(startNode);
+  //graph.adj[0].push_back(*startNode);
   int verticeCounterLetter = 0;
   int verticeCounterNumber = 0;
   int verticeCounterCopy = 0;
 
+  //start node a eklemeler
   for( string letter : letters) {
-    for(int i = 0; i < graph.adj[0].size(); i++) {
-      for( string number : numbers) {
-        graph.addEdge(graph.adj[verticeCounterCopy].at(i), *new Node(letter, stoi(number), verticeCounterNumber)); //Add a new node with every value to parent
+    for(int i = 0; i < 10; i++) {
+      for( int number : numbers) {
+        Core* newCore = new Core(letter, number); 
+        //Node* newNode = new Node(newCore, verticeCounterNumber);
+        //graph.addEdge(graph.vertex, newNode); //Add a new node with every value to parent
         verticeCounterNumber++;
 
       }
