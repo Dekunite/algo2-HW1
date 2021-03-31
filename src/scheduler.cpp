@@ -17,11 +17,15 @@ Date: <06/04/2021> */
 
 using namespace std;
 
+//Forward Declerations
+class Node;
+bool checkZeroConditions(string operand1, Node currentNode);
+bool checkSummationRuleStart(int operand1, int operand2, int result);
+int getLastValue(string operand1, Node currentNode);
+
 class Node {
   //string letter;
   //int value;
-  
-  
 
   public:
     Node(string letter, int value, int verticeNum);
@@ -98,9 +102,8 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
     int adjSize = adj[adjCounter].size();
     //vector<Node> adj = new vector<int>[100];
     for (int i = 0; i != adjSize; ++i) {
-      auto test = adj[adjCounter].at(i);
-      if(!adj[adjCounter].at(i).visited) {
-        Node currentNode = adj[adjCounter].at(i);
+      Node currentNode = adj[adjCounter].at(i);
+      if(!currentNode.visited) {
         currentNode.visited = true;
         cout << currentNode.verticeNum << endl;
 
@@ -112,17 +115,26 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
         }
 
         //not 0 conditions
-        int operand1Length = operand1.length();
-        for (int i = 0; i < operand1Length - 1; i++) {
-          string letter = string(1, operand1.at(i));
-          for (int k = 0; k < currentNode.letters->size(); k++) {
-            if (letter == currentNode.letters->at(k))
-              currentNode.values->at(k) == 0
-          }
+        if (!checkZeroConditions(operand1, currentNode)) {
+          continue;
         }
 
+        if (!checkZeroConditions(operand2, currentNode)) {
+          continue;
+        }
 
-        queue.push_back(adj[adjCounter].at(i));
+        if (!checkZeroConditions(result, currentNode)) {
+          continue;
+        }
+
+        //Check summation rules
+        bool passed = checkSummationRuleStart(getLastValue(operand1, currentNode),
+                                              getLastValue(operand2, currentNode),
+                                              getLastValue(result, currentNode));
+        
+
+
+        queue.push_back(currentNode);
       }
     }
 
@@ -131,17 +143,45 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
   }
 }
 
-bool checkZeroConitions(string operand1, string operand2, string result) {
+bool checkZeroConditions(string operand1, Node currentNode) {
+  //int operand1Length = operand1.length();
+  //for (int i = 0; i < operand1Length - 2; i++) { //W 0 olmama sebebi var mı?
+  for (int i = 0; i < 1; i++) {
+    string letter = string(1, operand1.at(i));
+    for (int k = 0; k < currentNode.letters->size(); k++) {
+      if (letter == currentNode.letters->at(k)) {
+        if(currentNode.values->at(k) == 0) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
 
+int getLastValue(string operand1, Node currentNode) {
+  int length = operand1.size();
+  string lastLetter = string(1,operand1.at(length-1));
+
+  for (int k = 0; k < currentNode.letters->size(); k++) {
+    if (lastLetter == currentNode.letters->at(k)) {
+      return currentNode.values->at(k);
+    }
+  }
+  return -1;
 }
 
 bool checkSummationRuleStart(int operand1, int operand2, int result) {
+  if (operand1 == -1 || operand2 == -1 || result == -1) {
+    return true;
+  }
+
   int carry = 0;
   if ((operand1 + operand2) >= 10) {
     carry = 1;
   }
 
-  if ((operand1 + operand2) == (result + 10 * carry)) {
+  if (((operand1 + operand2) == (result + 10 * carry))) {
     return true;
   }
   return false;
