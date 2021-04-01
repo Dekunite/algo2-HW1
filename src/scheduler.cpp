@@ -12,6 +12,7 @@ Date: <06/04/2021> */
 #include <vector>
 #include <math.h>
 #include <algorithm>
+#include <bits/stdc++.h> // for sort()
 
 #include "data_structs.h"
 
@@ -63,7 +64,7 @@ class Graph {
   public:
     Graph(Node* vertex);
     void addEdge(Node src, Node* dest);
-    void BFS(Node startVertex,string operand1, string operand2, string result);
+    void BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
 
     Node* vertex;
     vector<Node>* adj;
@@ -80,7 +81,7 @@ void Graph::addEdge(Node parent, Node* child) {
   adj[parent.verticeNum].push_back(*child);
 }
 
-void Graph::BFS(Node node, string operand1, string operand2, string result) {
+void Graph::BFS(Node node, string operand1, string operand2, string result, list<string> letters) {
   
   int verticeNum = node.verticeNum;
   //list<bool>* visited = new list<bool>[50];
@@ -103,10 +104,10 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
     //cout << "Letters Num: " << node.letters << endl;
     queue.pop_front();
 
-    int adjSize = adj[adjCounter].size();
+    int adjSize = adj[node.verticeNum].size();
     //vector<Node> adj = new vector<int>[100];
     for (int i = 0; i != adjSize; ++i) {
-      Node currentNode = adj[adjCounter].at(i);
+      Node currentNode = adj[node.verticeNum].at(i);
       if(!currentNode.visited) {
         currentNode.visited = true;
         //cout << currentNode.verticeNum << endl;
@@ -122,8 +123,10 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
         cout << endl;
 
         //aynı sayı kontrolü
-        auto valueIterator = unique(currentNode.values->begin(), currentNode.values->end());
-        bool hasDuplicates = !(valueIterator == currentNode.values->end());
+        vector<int> temp = *currentNode.values;
+        sort(temp.begin(), temp.end());
+        auto valueIterator = unique(temp.begin(), temp.end());
+        bool hasDuplicates = !(valueIterator == temp.end());
         if (hasDuplicates) {
           continue;
         }
@@ -167,6 +170,10 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
 
         queue.push_back(currentNode);
         cout << "pushed" << endl;
+        if (currentNode.letters->size() == letters.size() + 1) {
+          cout << "result found" << endl;
+          break;
+        }
       }
     }
 
@@ -182,11 +189,11 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 
   while (length1 >= 0 && length2 >= 0 && resultLength >= 0) {
     //bir önceki basamaklar toplamı 10 dan büyükse 1 değilse 0
-    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) > 10 ? 1 : 0;
+    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) >= 10 ? 1 : 0;
 
     int value1 = getValue(string(1, operand1.at(length1)), currentNode);
     int value2 = getValue(string(1, operand2.at(length1)), currentNode);
-    int valueR = getValue(string(1, operand1.at(resultLength)), currentNode);
+    int valueR = getValue(string(1, result.at(resultLength)), currentNode);
 
     bool passed = checkSummationRule(value1, value2, valueR, carry);
     if (!passed) {
@@ -198,16 +205,18 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
     resultLength--;
 
     //ilk basamak kontrol
-    if (resultLength == 0 && (length1 || length2) == -1) {
-      int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) > 10 ? 1 : 0;
+  }
 
-      valueR = getValue(string(1, operand1.at(resultLength)), currentNode);
-      passed = checkSummationRuleEnd(valueR, carry);
-      if (!passed) {
-        return false;
-      }
+  if (resultLength == 0) {
+    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) > 10 ? 1 : 0;
+
+    int valueR = getValue(string(1, result.at(resultLength)), currentNode);
+    bool passed = checkSummationRuleEnd(valueR, carry);
+    if (!passed) {
+      return false;
     }
   }
+
   return true;
 }
 
@@ -346,6 +355,7 @@ int main(int argc, char* argv[])
 
   vector<int> numbers = {0,1,2,3,4,5,6,7,8,9};
   list<string> letters = {"T","W","O","F","U","R"};
+  //list<string> letters = {"S","E","N","D","M","O","R","Y"};
   //get inputs line by line
   /*
   while(getline(file, input)) {
@@ -418,7 +428,7 @@ int main(int argc, char* argv[])
     layerCount *= 10;
   }
 
-  graph.BFS(*startNode, operand1, operand2, result);
+  graph.BFS(*startNode, operand1, operand2, result, letters);
 
   cout << "hello world" << endl;
   
