@@ -22,6 +22,10 @@ class Node;
 bool checkZeroConditions(string operand1, Node currentNode);
 bool checkSummationRuleStart(int operand1, int operand2, int result);
 int getLastValue(string operand1, Node currentNode);
+int getValue(string letter, Node currentNode);
+bool loopDigits(string operand1, string operand2, string result, Node currentNode);
+bool checkSummationRule(int operand1, int operand2, int result, int carry1);
+bool checkSummationRuleEnd(int operand, int carry);
 
 class Node {
   //string letter;
@@ -105,7 +109,17 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
       Node currentNode = adj[adjCounter].at(i);
       if(!currentNode.visited) {
         currentNode.visited = true;
-        cout << currentNode.verticeNum << endl;
+        //cout << currentNode.verticeNum << endl;
+
+        cout << "vertice num: " << currentNode.verticeNum << endl;
+        for (int i = 0; i<currentNode.letters->size(); i++) {
+          cout << currentNode.letters->at(i) << " " ;
+        }
+        cout << endl;
+        for (int i = 0; i<currentNode.values->size(); i++) {
+          cout << currentNode.values->at(i) << " " ;
+        }
+        cout << endl;
 
         //aynı sayı kontrolü
         auto valueIterator = unique(currentNode.values->begin(), currentNode.values->end());
@@ -131,16 +145,79 @@ void Graph::BFS(Node node, string operand1, string operand2, string result) {
         bool passed = checkSummationRuleStart(getLastValue(operand1, currentNode),
                                               getLastValue(operand2, currentNode),
                                               getLastValue(result, currentNode));
-        
+        if (!passed) {
+          continue;
+        }
 
+        passed = loopDigits(operand1, operand2, result, currentNode);
+        if (!passed) {
+          continue;
+        }
+        
+        /*
+        cout << currentNode.verticeNum << endl;
+        for (int i = 0; i<currentNode.letters->size(); i++) {
+          cout << currentNode.letters->at(i) << " " ;
+        }
+        cout << endl;
+        for (int i = 0; i<currentNode.values->size(); i++) {
+          cout << currentNode.values->at(i) << " " ;
+        }
+        */
 
         queue.push_back(currentNode);
+        cout << "pushed" << endl;
       }
     }
 
     adjCounter++;
 
   }
+}
+
+bool loopDigits(string operand1, string operand2, string result, Node currentNode) {
+  int length1 = operand1.length() - 2 ;
+  int length2 = operand2.length() - 2;
+  int resultLength = result.length() - 2;
+
+  while (length1 >= 0 && length2 >= 0 && resultLength >= 0) {
+    //bir önceki basamaklar toplamı 10 dan büyükse 1 değilse 0
+    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) > 10 ? 1 : 0;
+
+    int value1 = getValue(string(1, operand1.at(length1)), currentNode);
+    int value2 = getValue(string(1, operand2.at(length1)), currentNode);
+    int valueR = getValue(string(1, operand1.at(resultLength)), currentNode);
+
+    bool passed = checkSummationRule(value1, value2, valueR, carry);
+    if (!passed) {
+      return false;
+    }
+
+    length1--;
+    length2--;
+    resultLength--;
+
+    //ilk basamak kontrol
+    if (resultLength == 0 && (length1 || length2) == -1) {
+      int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) > 10 ? 1 : 0;
+
+      valueR = getValue(string(1, operand1.at(resultLength)), currentNode);
+      passed = checkSummationRuleEnd(valueR, carry);
+      if (!passed) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+int getValue(string letter, Node currentNode) {
+  for (int k = 0; k < currentNode.letters->size(); k++) {
+    if (letter == currentNode.letters->at(k)) {
+      return currentNode.values->at(k);
+    }
+  }
+  return -1;
 }
 
 bool checkZeroConditions(string operand1, Node currentNode) {
@@ -188,6 +265,10 @@ bool checkSummationRuleStart(int operand1, int operand2, int result) {
 }
 
 bool checkSummationRule(int operand1, int operand2, int result, int carry1) {
+  if (operand1 == -1 || operand2 == -1 || result == -1) {
+    return true;
+  }
+
   int carry2 = 0;
   if ((operand1 + operand2 + carry1) >= 10) {
     carry2 = 1;
@@ -200,6 +281,10 @@ bool checkSummationRule(int operand1, int operand2, int result, int carry1) {
 }
 
 bool checkSummationRuleEnd(int operand, int carry) {
+  if (operand == -1) {
+    return true;
+  }
+
   if(operand == carry) {
     return true;
   }
