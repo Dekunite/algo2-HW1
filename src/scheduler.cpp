@@ -65,6 +65,7 @@ class Graph {
     Graph(Node* vertex);
     void addEdge(Node src, Node* dest);
     void BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
+    void DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
 
     Node* vertex;
     vector<Node>* adj;
@@ -182,6 +183,76 @@ void Graph::BFS(Node node, string operand1, string operand2, string result, list
   }
 }
 
+void Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters) {
+ 
+  int verticeNum = node.verticeNum;
+
+  //mark current node visited and enqueue
+  node.visited = true;
+  cout << node.verticeNum << " ";
+
+  list<Node>::iterator* i;
+
+  // Recur for all the vertices adjacent to this vertex
+	int adjSize = adj[node.verticeNum].size();
+  for (int i = 0; i != adjSize; ++i) {
+    Node currentNode = adj[node.verticeNum].at(i);
+    if(!currentNode.visited) {
+      cout << "vertice num: " << currentNode.verticeNum << endl;
+      for (int i = 0; i<currentNode.letters->size(); i++) {
+        cout << currentNode.letters->at(i) << " " ;
+      }
+      cout << endl;
+      for (int i = 0; i<currentNode.values->size(); i++) {
+        cout << currentNode.values->at(i) << " " ;
+      }
+      cout << endl;
+
+      //aynı sayı kontrolü
+      vector<int> temp = *currentNode.values;
+      sort(temp.begin(), temp.end());
+      auto valueIterator = unique(temp.begin(), temp.end());
+      bool hasDuplicates = !(valueIterator == temp.end());
+      if (hasDuplicates) {
+        continue;
+      }
+
+      //not 0 conditions
+      if (!checkZeroConditions(operand1, currentNode)) {
+        continue;
+      }
+
+      if (!checkZeroConditions(operand2, currentNode)) {
+        continue;
+      }
+
+      if (!checkZeroConditions(result, currentNode)) {
+        continue;
+      }
+
+      //Check summation rules
+      bool passed = checkSummationRuleStart(getLastValue(operand1, currentNode),
+                                            getLastValue(operand2, currentNode),
+                                            getLastValue(result, currentNode));
+      if (!passed) {
+        continue;
+      }
+
+      passed = loopDigits(operand1, operand2, result, currentNode);
+      if (!passed) {
+        continue;
+      }
+
+      cout << "pushed" << endl;
+      if (currentNode.letters->size() == letters.size() + 1) {
+        cout << "result found" << endl;
+        break;
+      }
+      DFS(currentNode, operand1, operand2, result, letters);
+    }
+  }
+}
+
 bool loopDigits(string operand1, string operand2, string result, Node currentNode) {
   int length1 = operand1.length() - 2 ;
   int length2 = operand2.length() - 2;
@@ -204,9 +275,9 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
     length2--;
     resultLength--;
 
-    //ilk basamak kontrol
   }
 
+  //ilk basamak kontrol
   if (resultLength == 0) {
     int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) > 10 ? 1 : 0;
 
@@ -428,7 +499,8 @@ int main(int argc, char* argv[])
     layerCount *= 10;
   }
 
-  graph.BFS(*startNode, operand1, operand2, result, letters);
+  //graph.BFS(*startNode, operand1, operand2, result, letters);
+  graph.DFS(*startNode, operand1, operand2, result, letters);
 
   cout << "hello world" << endl;
   
