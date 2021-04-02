@@ -3,16 +3,14 @@ Student Name: <Muhammet Derviş Kopuz>
 Student ID : <504201531>
 Date: <06/04/2021> */
 
-#include<fstream>
-#include<stdio.h>
 #include<iostream>
-#include<stdlib.h>
-#include <sstream>
+//#include<stdlib.h>
+//#include <sstream>
 #include <list>
 #include <vector>
 #include <math.h>
 #include <algorithm>
-#include <bits/stdc++.h> // for sort()
+//#include <bits/stdc++.h> // for sort()
 
 using namespace std;
 
@@ -126,22 +124,30 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
         //aynı sayı kontrolü
         vector<int> temp = *currentNode.values;
         sort(temp.begin(), temp.end());
-        auto valueIterator = unique(temp.begin(), temp.end());
+        vector<int>::iterator valueIterator = unique(temp.begin(), temp.end());
         bool hasDuplicates = !(valueIterator == temp.end());
         if (hasDuplicates) {
+          delete currentNode.letters;
+          delete currentNode.values;
           continue;
         }
 
         //not 0 conditions
         if (!checkZeroConditions(operand1, currentNode)) {
+          delete currentNode.letters;
+          delete currentNode.values;
           continue;
         }
 
         if (!checkZeroConditions(operand2, currentNode)) {
+          delete currentNode.letters;
+          delete currentNode.values;
           continue;
         }
 
         if (!checkZeroConditions(result, currentNode)) {
+          delete currentNode.letters;
+          delete currentNode.values;
           continue;
         }
 
@@ -150,11 +156,15 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
                                               getLastValue(operand2, currentNode),
                                               getLastValue(result, currentNode));
         if (!passed) {
+          delete currentNode.letters;
+          delete currentNode.values;
           continue;
         }
 
         passed = loopDigits(operand1, operand2, result, currentNode);
         if (!passed) {
+          delete currentNode.letters;
+          delete currentNode.values;
           continue;
         }
         
@@ -216,7 +226,7 @@ Node Graph::DFS(Node node, string operand1, string operand2, string result, list
       //aynı sayı kontrolü
       vector<int> temp = *currentNode.values;
       sort(temp.begin(), temp.end());
-      auto valueIterator = unique(temp.begin(), temp.end());
+      vector<int>::iterator valueIterator = unique(temp.begin(), temp.end());
       bool hasDuplicates = !(valueIterator == temp.end());
       if (hasDuplicates) {
         continue;
@@ -404,7 +414,7 @@ int main(int argc, char* argv[])
   const string result = "FOUR";
   //const char* filename = argv[1];
 
-  ifstream file(filename);
+  //ifstream file(filename);
   string input;
 
 /*
@@ -441,9 +451,39 @@ int main(int argc, char* argv[])
   }
   */
 
-  vector<int> numbers = {0,1,2,3,4,5,6,7,8,9};
-  //list<string> letters = {"T","W","O","F","U","R"};
-  list<string> letters = {"S","E","N","D","M","O","R","Y"};
+  vector<int> numbers;
+  numbers.push_back(0);
+  numbers.push_back(1);
+  numbers.push_back(2);
+  numbers.push_back(3);
+  numbers.push_back(4);
+  numbers.push_back(5);
+  numbers.push_back(6);
+  numbers.push_back(7);
+  numbers.push_back(8);
+  numbers.push_back(9);
+  
+  list<string> letters;
+  letters.push_back("T");
+  letters.push_back("W");
+  letters.push_back("O");
+  letters.push_back("F");
+  letters.push_back("U");
+  letters.push_back("R");
+  
+ /*
+  list<string> letters;
+  letters.push_back("S");
+  letters.push_back("E");
+  letters.push_back("N");
+  letters.push_back("D");
+  letters.push_back("M");
+  letters.push_back("O");
+  letters.push_back("R");
+  letters.push_back("Y");
+  */
+  //list<string> letters = {"S","E","N","D","M","O","R","Y"};
+  //list<string> letters = {"D","O","W","N","E","R"};
   //get inputs line by line
   /*
   while(getline(file, input)) {
@@ -480,9 +520,9 @@ int main(int argc, char* argv[])
   int adjCounter = 0;
 
   //start node a eklemeler
-  for( string letter : letters) {
-    for( int number : numbers) {
-      Node* newNode = new Node(letter, number, verticeCounterNumber);
+  for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
+    for(vector<int>::iterator number = numbers.begin(); number!= numbers.end(); ++number) {
+      Node* newNode = new Node(*letter, *number, verticeCounterNumber);
       graph.addEdge(*graph.vertex, newNode); //Add a new node with every value to parent
       verticeCounterNumber++;
     }
@@ -494,16 +534,16 @@ int main(int argc, char* argv[])
   layerCount++;
   letters.pop_front();
 
-  for( string letter : letters) {
+  for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
     for(int k = 0; k<layerCount; k++) { //graph.adj[adjCounter].size()
       for(int i = 0; i < 10; i++) {
-        for( int number : numbers) {
+        for(vector<int>::iterator number = numbers.begin(); number!= numbers.end(); ++number) {
           //cout << graph.adj[adjCounter].at(i).letters->back() <<endl;
           
           Node* newNode = cloneNode(graph.adj[adjCounter].at(i));
           newNode->verticeNum = verticeCounterNumber;
-          newNode->letters->push_back(letter);
-          newNode->values->push_back(number);
+          newNode->letters->push_back(*letter);
+          newNode->values->push_back(*number);
           
           
 
@@ -531,6 +571,6 @@ int main(int argc, char* argv[])
 
   cout << "hello world" << endl;
   
-  return EXIT_SUCCESS;
+  return 0;
   
 }
