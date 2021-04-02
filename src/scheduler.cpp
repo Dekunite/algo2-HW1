@@ -62,7 +62,7 @@ class Graph {
   //vector<Node>* adj;
 
   public:
-    Graph(Node* vertex);
+    Graph(Node* vertex,int lettersSize);
     void addEdge(Node src, Node* dest);
     void BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
     void DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
@@ -71,11 +71,13 @@ class Graph {
     vector<Node>* adj;
 };
 
-Graph::Graph(Node* vertex1) {
+Graph::Graph(Node* vertex1, int lettersSize) {
   vertex = vertex1;
   int verticeNum = vertex1->verticeNum;
+  long adjSize = pow(10, lettersSize);
+  adjSize =100000000;
   //adj boyutunu dinamik hale getir
-  adj = new vector<Node>[1000000];
+  adj = new vector<Node>[adjSize];
 }
 
 void Graph::addEdge(Node parent, Node* child) {
@@ -425,8 +427,8 @@ int main(int argc, char* argv[])
   }
 
   vector<int> numbers = {0,1,2,3,4,5,6,7,8,9};
-  list<string> letters = {"T","W","O","F","U","R"};
-  //list<string> letters = {"S","E","N","D","M","O","R","Y"};
+  //list<string> letters = {"T","W","O","F","U","R"};
+  list<string> letters = {"S","E","N","D","M","O","R","Y"};
   //get inputs line by line
   /*
   while(getline(file, input)) {
@@ -456,7 +458,7 @@ int main(int argc, char* argv[])
 
   //Core* newCore = new Core("start",1);
   Node* startNode = new Node("start", 0, 0);
-  Graph graph(startNode);
+  Graph graph(startNode, letters.size());
   //graph.adj[0].push_back(*startNode);
   int verticeCounterNumber = 1;
   int layerCount = 0;
@@ -499,8 +501,8 @@ int main(int argc, char* argv[])
     layerCount *= 10;
   }
 
-  //graph.BFS(*startNode, operand1, operand2, result, letters);
-  graph.DFS(*startNode, operand1, operand2, result, letters);
+  graph.BFS(*startNode, operand1, operand2, result, letters);
+  //graph.DFS(*startNode, operand1, operand2, result, letters);
 
   cout << "hello world" << endl;
   
