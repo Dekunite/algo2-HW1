@@ -25,8 +25,6 @@ bool checkSummationRule(int operand1, int operand2, int result, int carry1);
 bool checkSummationRuleEnd(int operand, int carry);
 
 class Node {
-  //string letter;
-  //int value;
 
   public:
     Node(string letter, int value, int verticeNum);
@@ -54,8 +52,6 @@ Node::Node() {
 }
 
 class Graph {
-  //Node* vertex;
-  //vector<Node>* adj;
 
   public:
     Graph(Node* vertex,int lettersSize);
@@ -71,7 +67,7 @@ Graph::Graph(Node* vertex1, int lettersSize) {
   vertex = vertex1;
   int verticeNum = vertex1->verticeNum;
   long adjSize = pow(10, lettersSize);
-  adjSize =100000000;
+  //adjSize =100000000;
   //adj boyutunu dinamik hale getir
   adj = new vector<Node>[adjSize];
 }
@@ -83,10 +79,6 @@ void Graph::addEdge(Node parent, Node* child) {
 Node Graph::BFS(Node node, string operand1, string operand2, string result, list<string> letters) {
   
   int verticeNum = node.verticeNum;
-  //list<bool>* visited = new list<bool>[50];
-  //for(int i = 0; i < 50; i++) {
-    //visited[i] = false;
-  //}
 
   list<Node> queue;
 
@@ -99,17 +91,13 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
   int adjCounter = 0;
   while(!queue.empty()) {
     node = queue.front();
-    //cout << "Vertice Num: " << node.verticeNum << endl;
-    //cout << "Letters Num: " << node.letters << endl;
     queue.pop_front();
 
     int adjSize = adj[node.verticeNum].size();
-    //vector<Node> adj = new vector<int>[100];
     for (int i = 0; i != adjSize; ++i) {
       Node currentNode = adj[node.verticeNum].at(i);
       if(!currentNode.visited) {
         currentNode.visited = true;
-        //cout << currentNode.verticeNum << endl;
 
         cout << "vertice num: " << currentNode.verticeNum << endl;
         for (int i = 0; i<currentNode.letters->size(); i++) {
@@ -168,17 +156,6 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
           continue;
         }
         
-        /*
-        cout << currentNode.verticeNum << endl;
-        for (int i = 0; i<currentNode.letters->size(); i++) {
-          cout << currentNode.letters->at(i) << " " ;
-        }
-        cout << endl;
-        for (int i = 0; i<currentNode.values->size(); i++) {
-          cout << currentNode.values->at(i) << " " ;
-        }
-        */
-
         queue.push_back(currentNode);
         cout << "pushed" << endl;
         if (currentNode.letters->size() == letters.size() + 1) {
@@ -304,7 +281,15 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 
   //ilk basamak kontrol
   if (resultLength == 0) {
-    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) > 10 ? 1 : 0;
+    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) >= 10 ? 1 : 0;
+
+    if (length1 == 0) {
+      carry += (getValue(string(1, operand1.at(length1)), currentNode));
+    }
+
+    if (length2 == 0) {
+      carry += (getValue(string(1, operand2.at(length2)), currentNode));
+    }
 
     int valueR = getValue(string(1, result.at(resultLength)), currentNode);
     bool passed = checkSummationRuleEnd(valueR, carry);
@@ -322,7 +307,7 @@ int getValue(string letter, Node currentNode) {
       return currentNode.values->at(k);
     }
   }
-  return -1;
+  return -9;
 }
 
 bool checkZeroConditions(string operand1, Node currentNode) {
@@ -350,11 +335,11 @@ int getLastValue(string operand1, Node currentNode) {
       return currentNode.values->at(k);
     }
   }
-  return -1;
+  return -9;
 }
 
 bool checkSummationRuleStart(int operand1, int operand2, int result) {
-  if (operand1 == -1 || operand2 == -1 || result == -1) {
+  if (operand1 == -9 || operand2 == -9 || result == -9) {
     return true;
   }
 
@@ -370,7 +355,7 @@ bool checkSummationRuleStart(int operand1, int operand2, int result) {
 }
 
 bool checkSummationRule(int operand1, int operand2, int result, int carry1) {
-  if (operand1 == -1 || operand2 == -1 || result == -1) {
+  if (operand1 == -9 || operand2 == -9 || result == -9) {
     return true;
   }
 
@@ -386,7 +371,7 @@ bool checkSummationRule(int operand1, int operand2, int result, int carry1) {
 }
 
 bool checkSummationRuleEnd(int operand, int carry) {
-  if (operand == -1) {
+  if (operand == -9) {
     return true;
   }
 
@@ -409,9 +394,14 @@ int main(int argc, char* argv[])
 {
   const char* filename = "TWO TWO FOUR.txt";
   const string searchMethod = "BFS";
-  const string operand1 = "TWO";
-  const string operand2 = "TWO";
-  const string result = "FOUR";
+
+  //const string operand1 = "TWO";
+  //const string operand2 = "TWO";
+  //const string result = "FOUR";
+
+  const string operand1 = "DOWN";
+  const string operand2 = "WWW";
+  const string result = "ERROR";
   //const char* filename = argv[1];
 
   //ifstream file(filename);
@@ -428,7 +418,6 @@ int main(int argc, char* argv[])
   Node* newNode6 = new Node(*newCore,6);
   Node* newNode7 = new Node(*newCore,7);
 
-
   Graph graph(newNode0);
   graph.addEdge(newNode0,newNode1);
   graph.addEdge(newNode0,newNode2);
@@ -443,13 +432,6 @@ int main(int argc, char* argv[])
 	graph.BFS(*newNode0);
   */
 
-  /*
-  if(!file)
-  {
-    cerr << "Cannot open file" << endl;
-    return EXIT_FAILURE;
-  }
-  */
 
   vector<int> numbers;
   numbers.push_back(0);
@@ -463,6 +445,7 @@ int main(int argc, char* argv[])
   numbers.push_back(8);
   numbers.push_back(9);
   
+  /*
   list<string> letters;
   letters.push_back("T");
   letters.push_back("W");
@@ -470,6 +453,7 @@ int main(int argc, char* argv[])
   letters.push_back("F");
   letters.push_back("U");
   letters.push_back("R");
+  */
   
  /*
   list<string> letters;
@@ -482,8 +466,16 @@ int main(int argc, char* argv[])
   letters.push_back("R");
   letters.push_back("Y");
   */
-  //list<string> letters = {"S","E","N","D","M","O","R","Y"};
-  //list<string> letters = {"D","O","W","N","E","R"};
+
+ 
+  list<string> letters;
+  letters.push_back("D");
+  letters.push_back("O");
+  letters.push_back("W");
+  letters.push_back("N");
+  letters.push_back("E");
+  letters.push_back("R");
+  
   //get inputs line by line
   /*
   while(getline(file, input)) {
@@ -511,10 +503,8 @@ int main(int argc, char* argv[])
 
   int nodeCount =pow(numbers.size(), letters.size());
 
-  //Core* newCore = new Core("start",1);
   Node* startNode = new Node("start", 0, 0);
   Graph graph(startNode, letters.size());
-  //graph.adj[0].push_back(*startNode);
   int verticeCounterNumber = 1;
   int layerCount = 0;
   int adjCounter = 0;
@@ -544,9 +534,6 @@ int main(int argc, char* argv[])
           newNode->verticeNum = verticeCounterNumber;
           newNode->letters->push_back(*letter);
           newNode->values->push_back(*number);
-          
-          
-
           
 
           graph.addEdge(graph.adj[adjCounter].at(i), newNode); //Add a new node with every value to parent
