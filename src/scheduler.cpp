@@ -14,8 +14,6 @@ Date: <06/04/2021> */
 #include <algorithm>
 #include <bits/stdc++.h> // for sort()
 
-#include "data_structs.h"
-
 using namespace std;
 
 //Forward Declerations
@@ -64,8 +62,8 @@ class Graph {
   public:
     Graph(Node* vertex,int lettersSize);
     void addEdge(Node src, Node* dest);
-    void BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
-    void DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
+    Node BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
+    Node DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
 
     Node* vertex;
     vector<Node>* adj;
@@ -84,7 +82,7 @@ void Graph::addEdge(Node parent, Node* child) {
   adj[parent.verticeNum].push_back(*child);
 }
 
-void Graph::BFS(Node node, string operand1, string operand2, string result, list<string> letters) {
+Node Graph::BFS(Node node, string operand1, string operand2, string result, list<string> letters) {
   
   int verticeNum = node.verticeNum;
   //list<bool>* visited = new list<bool>[50];
@@ -175,7 +173,8 @@ void Graph::BFS(Node node, string operand1, string operand2, string result, list
         cout << "pushed" << endl;
         if (currentNode.letters->size() == letters.size() + 1) {
           cout << "result found" << endl;
-          break;
+          return currentNode;
+          //break;
         }
       }
     }
@@ -183,11 +182,15 @@ void Graph::BFS(Node node, string operand1, string operand2, string result, list
     adjCounter++;
 
   }
+  return node;
 }
 
-void Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters) {
+Node Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters) {
  
   int verticeNum = node.verticeNum;
+  int resultVerticeNum = 0;
+  int resultI = 0;
+  bool resultFound = false;
 
   //mark current node visited and enqueue
   node.visited = true;
@@ -248,11 +251,21 @@ void Graph::DFS(Node node, string operand1, string operand2, string result, list
       cout << "pushed" << endl;
       if (currentNode.letters->size() == letters.size() + 1) {
         cout << "result found" << endl;
+        if (!resultFound) {
+          resultVerticeNum = node.verticeNum;
+          resultI = i;
+        }
+        //return currentNode;
         break;
       }
-      DFS(currentNode, operand1, operand2, result, letters);
+      Node resultNode = DFS(currentNode, operand1, operand2, result, letters);
+      if (resultNode.verticeNum) {
+        return resultNode;
+      }
+      //return resultNode;
     }
   }
+  return adj[resultVerticeNum].at(resultI);
 }
 
 bool loopDigits(string operand1, string operand2, string result, Node currentNode) {
@@ -420,11 +433,13 @@ int main(int argc, char* argv[])
 	graph.BFS(*newNode0);
   */
 
+  /*
   if(!file)
   {
     cerr << "Cannot open file" << endl;
     return EXIT_FAILURE;
   }
+  */
 
   vector<int> numbers = {0,1,2,3,4,5,6,7,8,9};
   //list<string> letters = {"T","W","O","F","U","R"};
@@ -484,11 +499,21 @@ int main(int argc, char* argv[])
       for(int i = 0; i < 10; i++) {
         for( int number : numbers) {
           //cout << graph.adj[adjCounter].at(i).letters->back() <<endl;
+          
           Node* newNode = cloneNode(graph.adj[adjCounter].at(i));
           newNode->verticeNum = verticeCounterNumber;
           newNode->letters->push_back(letter);
           newNode->values->push_back(number);
+          
+          
+
+          
+
           graph.addEdge(graph.adj[adjCounter].at(i), newNode); //Add a new node with every value to parent
+          //delete newNode->letters;
+          //delete newNode->values;
+          delete newNode;
+
           verticeCounterNumber++;
 
         }
@@ -501,8 +526,8 @@ int main(int argc, char* argv[])
     layerCount *= 10;
   }
 
-  graph.BFS(*startNode, operand1, operand2, result, letters);
-  //graph.DFS(*startNode, operand1, operand2, result, letters);
+  Node resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
+  //Node resultNode = graph.DFS(*startNode, operand1, operand2, result, letters);
 
   cout << "hello world" << endl;
   
