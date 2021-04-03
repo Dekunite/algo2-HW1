@@ -4,6 +4,7 @@ Student ID : <504201531>
 Date: <06/04/2021> */
 
 #include<iostream>
+#include <fstream>
 //#include<stdlib.h>
 //#include <sstream>
 #include <list>
@@ -24,11 +25,6 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 bool checkSummationRule(int operand1, int operand2, int result, int carry1);
 bool checkSummationRuleEnd(int operand, int carry);
 
-class Message {
-  public:
-    bool success;
-    Node* result;
-};
 
 class Node {
 
@@ -57,13 +53,26 @@ Node::Node() {
   visited = false;
 }
 
+class Message {
+  public:
+    Message(bool success1);
+
+    bool success;
+    Node* result;
+};
+
+Message::Message(bool success1) {
+  success = success1;
+  result = new Node();
+}
+
 class Graph {
 
   public:
     Graph(Node* vertex,int lettersSize);
     void addEdge(Node src, Node* dest);
     Node BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
-    Message DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters, Message* newMessage);
+    Message DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters, Message newMessage);
 
     Node* vertex;
     vector<Node>* adj;
@@ -178,7 +187,7 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
   return node;
 }
 
-Message Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters, Message* message) {
+Message Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters, Message message) {
  
   int verticeNum = node.verticeNum;
   int resultVerticeNum = 0;
@@ -248,21 +257,29 @@ Message Graph::DFS(Node node, string operand1, string operand2, string result, l
           resultVerticeNum = node.verticeNum;
           resultI = i;
         }
-        message->result = &currentNode;
-        message->success = true;
-        return *message;
+        cout<<currentNode.verticeNum <<endl;
+        cout<<&currentNode.verticeNum <<endl;
+        //cout<<message->result->verticeNum <<endl;
+        //cout<<&message->result->verticeNum <<endl;
+
+        //message->result->verticeNum = currentNode.verticeNum;
+        //message->result->letters = currentNode.letters;
+        //message->result->values = currentNode.values;
+        message.result = &currentNode;
+        message.success = true;
+        return message;
         break;
       }
-      Message message = DFS(currentNode, operand1, operand2, result, letters, &message);
-      if (message.success) {
-        return message;
+      Message messageR = DFS(currentNode, operand1, operand2, result, letters, message);
+      if (messageR.success) {
+        return messageR;
       }
       //return resultNode;
       //return resultNode;
     }
   }
-  message->success = false;
-  return *message;
+  message.success = false;
+  return message;
   //return adj[resultVerticeNum].at(resultI);
 }
 
@@ -438,6 +455,40 @@ Node* cloneNode(Node parent) {
   return newNode;
 }
 
+void writeToFile(list<string> letters, vector<int> numbers, Node resultNode, string fileName) {
+  ofstream outputFileName(fileName);
+  outputFileName << "\t";
+
+  for(vector<int>::iterator number = numbers.begin(); number!= numbers.end(); ++number) {
+    if (number == numbers.end()-1) {
+      outputFileName << *number;
+      outputFileName << "\n";
+      continue;
+    }
+    outputFileName << *number << "\t";
+  }
+
+  int letterCounter = 0;
+  for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
+    outputFileName << *letter ;
+    int value = resultNode.values->at(letterCounter);
+    for (int i = 0; i < value; i++) {
+      outputFileName << "\t" << ".";
+    }
+    outputFileName << "\t" << "1";
+    int remainder = 9 - value;
+    for (int k = 0; k < remainder; k++) {
+      if (k == remainder -1) {
+        outputFileName << "\t" << "." << "\n";
+        continue;
+      }
+      outputFileName << "\t" << ".";
+    }
+    letterCounter++;
+  }
+
+}
+
 int main(int argc, char* argv[])
 {
   const char* filename = "TWO TWO FOUR.txt";
@@ -446,12 +497,27 @@ int main(int argc, char* argv[])
   const string operand1 = "TWO";
   const string operand2 = "TWO";
   const string result = "FOUR";
+  const string outputFileName = "output";
 /*
   const string operand1 = "DOWN";
   const string operand2 = "WWW";
   const string result = "ERROR";
   */
-  //const char* filename = argv[1];
+
+ /*
+  const string searchType = argv[1];
+  const string operand1 = argv[2];
+  const string operand2 = argv[3];
+  const string result = argv[4];
+  const string outputFileName = argv[5];
+  */
+
+/*
+  cout << "operator1: " << operator1 << endl;
+  cout << "operator2: " << operator2 << endl;
+  cout << "operator3: " << operator3 << endl;
+  cout << "operator3: " << outputFileName << endl;
+  */
 
   //ifstream file(filename);
   string input;
@@ -572,6 +638,7 @@ int main(int argc, char* argv[])
   //graph.BFS(*startNode);
 
   layerCount++;
+  string poppedLetter = letters.front();
   letters.pop_front();
 
   for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
@@ -603,21 +670,31 @@ int main(int argc, char* argv[])
     layerCount *= 10;
   }
 
+  Node resultNode; 
+  if (searchMethod == "BFS") {
+    resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
+  }
   //Node resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
-  Node* dfsResult;
-  Message* newMessage = new Message;
-  newMessage->success = false;
-  Message resultNode = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
 
-  cout << "vertice num: " << resultNode.result->verticeNum << endl;
-  for (int i = 0; i<resultNode.result->letters->size(); i++) {
-    cout << resultNode.result->letters->at(i) << " " ;
+
+  Node* dfsResult;
+  Message* newMessage = new Message(false);
+  newMessage->success = false;
+  //Message resultNode = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
+
+  cout << "vertice num: " << resultNode.verticeNum << endl;
+  for (int i = 0; i<resultNode.letters->size(); i++) {
+    cout << resultNode.letters->at(i) << " " ;
   }
   cout << endl;
-  for (int i = 0; i<resultNode.result->values->size(); i++) {
-    cout << resultNode.result->values->at(i) << " " ;
+  for (int i = 0; i<resultNode.values->size(); i++) {
+    cout << resultNode.values->at(i) << " " ;
   }
   cout << endl;
+
+  letters.push_front(poppedLetter);
+
+  writeToFile(letters, numbers, resultNode, outputFileName);
 
   cout << "hello world" << endl;
   cin>> input;
