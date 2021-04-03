@@ -24,6 +24,12 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 bool checkSummationRule(int operand1, int operand2, int result, int carry1);
 bool checkSummationRuleEnd(int operand, int carry);
 
+class Message {
+  public:
+    bool success;
+    Node* result;
+};
+
 class Node {
 
   public:
@@ -57,7 +63,7 @@ class Graph {
     Graph(Node* vertex,int lettersSize);
     void addEdge(Node src, Node* dest);
     Node BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
-    Node DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
+    Message DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters, Message* newMessage);
 
     Node* vertex;
     vector<Node>* adj;
@@ -172,7 +178,7 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
   return node;
 }
 
-Node Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters) {
+Message Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters, Message* message) {
  
   int verticeNum = node.verticeNum;
   int resultVerticeNum = 0;
@@ -181,7 +187,7 @@ Node Graph::DFS(Node node, string operand1, string operand2, string result, list
 
   //mark current node visited and enqueue
   node.visited = true;
-  cout << node.verticeNum << " ";
+  cout << "vertice num: " << node.verticeNum << endl;
 
   list<Node>::iterator* i;
 
@@ -242,17 +248,22 @@ Node Graph::DFS(Node node, string operand1, string operand2, string result, list
           resultVerticeNum = node.verticeNum;
           resultI = i;
         }
-        //return currentNode;
+        message->result = &currentNode;
+        message->success = true;
+        return *message;
         break;
       }
-      Node resultNode = DFS(currentNode, operand1, operand2, result, letters);
-      if (resultNode.verticeNum) {
-        return resultNode;
+      Message message = DFS(currentNode, operand1, operand2, result, letters, &message);
+      if (message.success) {
+        return message;
       }
+      //return resultNode;
       //return resultNode;
     }
   }
-  return adj[resultVerticeNum].at(resultI);
+  message->success = false;
+  return *message;
+  //return adj[resultVerticeNum].at(resultI);
 }
 
 bool loopDigits(string operand1, string operand2, string result, Node currentNode) {
@@ -262,10 +273,18 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 
   while (length1 >= 0 && length2 >= 0 && resultLength >= 0) {
     //bir önceki basamaklar toplamı 10 dan büyükse 1 değilse 0
-    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) >= 10 ? 1 : 0;
+    int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
+    int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
+    if (carry1 == -9 || carry2 == -9) {
+      length1--;
+      length2--;
+      resultLength--;
+      continue;
+    }
+    int carry = (carry1 + carry2) >= 10 ? 1 : 0;
 
     int value1 = getValue(string(1, operand1.at(length1)), currentNode);
-    int value2 = getValue(string(1, operand2.at(length1)), currentNode);
+    int value2 = getValue(string(1, operand2.at(length2)), currentNode);
     int valueR = getValue(string(1, result.at(resultLength)), currentNode);
 
     bool passed = checkSummationRule(value1, value2, valueR, carry);
@@ -279,9 +298,38 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 
   }
 
+/*
+  if(length1 >= 0 && length2 < 0) {
+    int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
+    int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
+    int carry = (carry1 + carry2) >= 10 ? 1 : 0;
+
+    int value1 = getValue(string(1, operand1.at(length1)), currentNode);
+    int valueR = getValue(string(1, result.at(resultLength)), currentNode);
+    if(!((value1 + carry) == valueR)) {
+      return false;
+    }
+  }
+
+  if(length2 >= 0 && length1 < 0) {
+    int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
+    int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
+    int carry = (carry1 + carry2) >= 10 ? 1 : 0;
+
+    int value2 = getValue(string(1, operand2.at(length2)), currentNode);
+    int valueR = getValue(string(1, result.at(resultLength)), currentNode);
+    if(!((value2 + carry) == valueR)) {
+      return false;
+    }
+  }
+  */
+  
+
   //ilk basamak kontrol
   if (resultLength == 0) {
-    int carry = (getValue(string(1, operand1.at(length1 + 1)), currentNode) + getValue(string(1, operand2.at(length2 + 1)), currentNode)) >= 10 ? 1 : 0;
+    int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
+    int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
+    int carry = (carry1 + carry2) >= 10 ? 1 : 0;
 
     if (length1 == 0) {
       carry += (getValue(string(1, operand1.at(length1)), currentNode));
@@ -395,17 +443,19 @@ int main(int argc, char* argv[])
   const char* filename = "TWO TWO FOUR.txt";
   const string searchMethod = "BFS";
 
-  //const string operand1 = "TWO";
-  //const string operand2 = "TWO";
-  //const string result = "FOUR";
-
+  const string operand1 = "TWO";
+  const string operand2 = "TWO";
+  const string result = "FOUR";
+/*
   const string operand1 = "DOWN";
   const string operand2 = "WWW";
   const string result = "ERROR";
+  */
   //const char* filename = argv[1];
 
   //ifstream file(filename);
   string input;
+
 
 /*
   Core* newCore = new Core("a",1);
@@ -445,7 +495,7 @@ int main(int argc, char* argv[])
   numbers.push_back(8);
   numbers.push_back(9);
   
-  /*
+  
   list<string> letters;
   letters.push_back("T");
   letters.push_back("W");
@@ -453,7 +503,7 @@ int main(int argc, char* argv[])
   letters.push_back("F");
   letters.push_back("U");
   letters.push_back("R");
-  */
+  
   
  /*
   list<string> letters;
@@ -467,7 +517,7 @@ int main(int argc, char* argv[])
   letters.push_back("Y");
   */
 
- 
+ /*
   list<string> letters;
   letters.push_back("D");
   letters.push_back("O");
@@ -475,7 +525,7 @@ int main(int argc, char* argv[])
   letters.push_back("N");
   letters.push_back("E");
   letters.push_back("R");
-  
+  */
   //get inputs line by line
   /*
   while(getline(file, input)) {
@@ -553,10 +603,24 @@ int main(int argc, char* argv[])
     layerCount *= 10;
   }
 
-  Node resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
-  //Node resultNode = graph.DFS(*startNode, operand1, operand2, result, letters);
+  //Node resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
+  Node* dfsResult;
+  Message* newMessage = new Message;
+  newMessage->success = false;
+  Message resultNode = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
+
+  cout << "vertice num: " << resultNode.result->verticeNum << endl;
+  for (int i = 0; i<resultNode.result->letters->size(); i++) {
+    cout << resultNode.result->letters->at(i) << " " ;
+  }
+  cout << endl;
+  for (int i = 0; i<resultNode.result->values->size(); i++) {
+    cout << resultNode.result->values->at(i) << " " ;
+  }
+  cout << endl;
 
   cout << "hello world" << endl;
+  cin>> input;
   
   return 0;
   
