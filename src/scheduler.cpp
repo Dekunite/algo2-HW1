@@ -548,6 +548,7 @@ int main(int argc, char* argv[])
 	graph.BFS(*newNode0);
   */
 
+  //Distinct harfleri bul ve pushla!!!!!!!!!!!
 
   vector<int> numbers;
   numbers.push_back(0);
