@@ -489,6 +489,14 @@ void writeToFile(list<string> letters, vector<int> numbers, Node resultNode, str
 
 }
 
+void pushLetters(string input) {
+  list<string> letters;
+  for (int i = 0; i < input.size(); i++) {
+    letters.push_back(string(1,input.at(i)));
+  }
+
+}
+
 int main(int argc, char* argv[])
 {
   const char* filename = "TWO TWO FOUR.txt";
@@ -510,6 +518,55 @@ int main(int argc, char* argv[])
   const string operand2 = argv[3];
   const string result = argv[4];
   const string outputFileName = argv[5];
+  */
+ list<string> letters;
+ //add operand1 letters
+ for (int i = 0; i < operand1.size(); i++) {
+   bool contains = false;
+   for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
+     if (string(1,operand1.at(i)) == *letter) {
+       contains = true;
+     }
+   }
+
+    if (!contains) {
+      letters.push_back(string(1,operand1.at(i)));
+    }
+  }
+
+  //add operand2 letters
+  for (int i = 0; i < operand2.size(); i++) {
+   bool contains = false;
+   for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
+     if (string(1,operand2.at(i)) == *letter) {
+       contains = true;
+     }
+   }
+
+    if (!contains) {
+      letters.push_back(string(1,operand2.at(i)));
+    }
+  }
+
+  //add result letters
+  for (int i = 0; i < result.size(); i++) {
+   bool contains = false;
+   for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
+     if (string(1,result.at(i)) == *letter) {
+       contains = true;
+     }
+   }
+
+    if (!contains) {
+      letters.push_back(string(1,result.at(i)));
+    }
+  }
+
+  /* letter checker
+  list<string>::iterator ok;
+  for (ok = letters.begin(); ok!= letters.end(); ++ok) {
+    cout << *ok <<endl;
+  }
   */
 
 /*
@@ -562,7 +619,7 @@ int main(int argc, char* argv[])
   numbers.push_back(8);
   numbers.push_back(9);
   
-  
+  /*
   list<string> letters;
   letters.push_back("T");
   letters.push_back("W");
@@ -570,6 +627,7 @@ int main(int argc, char* argv[])
   letters.push_back("F");
   letters.push_back("U");
   letters.push_back("R");
+  */
   
   
  /*
