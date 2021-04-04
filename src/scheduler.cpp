@@ -56,6 +56,7 @@ Node::Node() {
 class Message {
   public:
     Message(bool success1);
+    Message();
 
     bool success;
     Node* result;
@@ -64,6 +65,10 @@ class Message {
 Message::Message(bool success1) {
   success = success1;
   result = new Node();
+}
+
+Message::Message() {
+
 }
 
 class Graph {
@@ -500,7 +505,7 @@ void pushLetters(string input) {
 int main(int argc, char* argv[])
 {
   const char* filename = "TWO TWO FOUR.txt";
-  const string searchMethod = "BFS";
+  const string searchMethod = "DFS";
 
   const string operand1 = "TWO";
   const string operand2 = "TWO";
@@ -730,13 +735,37 @@ int main(int argc, char* argv[])
   }
 
   Node resultNode; 
+  Message dfsResult;
   if (searchMethod == "BFS") {
     resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
+
+    cout << "vertice num: " << resultNode.verticeNum << endl;
+    for (int i = 0; i<resultNode.letters->size(); i++) {
+      cout << resultNode.letters->at(i) << " " ;
+    }
+    cout << endl;
+    for (int i = 0; i<resultNode.values->size(); i++) {
+      cout << resultNode.values->at(i) << " " ;
+    }
+    cout << endl;
+  } else if (searchMethod == "DFS") {
+    Message* newMessage = new Message(false);
+    newMessage->success = false;
+
+    dfsResult = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
+
+    cout << "vertice num: " << dfsResult.result->verticeNum << endl;
+    for (int i = 0; i<dfsResult.result->letters->size(); i++) {
+      cout << dfsResult.result->letters->at(i) << " " ;
+    }
+    cout << endl;
+    for (int i = 0; i<dfsResult.result->values->size(); i++) {
+      cout << dfsResult.result->values->at(i) << " " ;
+    }
+    cout << endl;
   }
-  //Node resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
 
 
-  Node* dfsResult;
   Message* newMessage = new Message(false);
   newMessage->success = false;
   //Message resultNode = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
