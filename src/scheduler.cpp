@@ -11,6 +11,7 @@ Date: <06/04/2021> */
 #include <vector>
 #include <math.h>
 #include <algorithm>
+#include <time.h>
 //#include <bits/stdc++.h> // for sort()
 
 using namespace std;
@@ -82,12 +83,16 @@ class Graph {
 
     Node* vertex;
     vector<Node>* adj;
+    int numberOfVisitedNotes;
+    int nodesInMemory;
 };
 
 Graph::Graph(Node* vertex1, int lettersSize) {
   vertex = vertex1;
   int verticeNum = vertex1->verticeNum;
   long adjSize = pow(10, lettersSize);
+  numberOfVisitedNotes = 0;
+  nodesInMemory = 0;
   //adjSize =100000000;
   //adj boyutunu dinamik hale getir
   adj = new vector<Node>[adjSize];
@@ -114,12 +119,18 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
     node = queue.front();
     queue.pop_front();
 
+    if (queue.size() > nodesInMemory) {
+      nodesInMemory = queue.size();
+    }
+
     int adjSize = adj[node.verticeNum].size();
     for (int i = 0; i != adjSize; ++i) {
       Node currentNode = adj[node.verticeNum].at(i);
+      numberOfVisitedNotes++;
       if(!currentNode.visited) {
         currentNode.visited = true;
 
+        /*
         cout << "vertice num: " << currentNode.verticeNum << endl;
         for (int i = 0; i<currentNode.letters->size(); i++) {
           cout << currentNode.letters->at(i) << " " ;
@@ -129,7 +140,9 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
           cout << currentNode.values->at(i) << " " ;
         }
         cout << endl;
+        */
 
+        /*
         try {
           if (currentNode.values->at(0) == 9 ) {
             if (currentNode.values->size() > 1) {
@@ -148,6 +161,7 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
         } catch (int e) {
           cout << "nope" << endl;
         }
+        */
 
         //aynı sayı kontrolü
         vector<int> temp = *currentNode.values;
@@ -197,9 +211,9 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
         }
         
         queue.push_back(currentNode);
-        cout << "pushed" << endl;
+        //cout << "pushed" << endl;
         if (currentNode.letters->size() == letters.size() + 1) {
-          cout << "result found" << endl;
+          //cout << "result found" << endl;
           return currentNode;
         }
       }
@@ -217,7 +231,7 @@ int Graph::DFS(Node node, string operand1, string operand2, string result, list<
 
   //mark current node visited and enqueue
   node.visited = true;
-  cout << "vertice num: " << node.verticeNum << endl;
+  //cout << "vertice num: " << node.verticeNum << endl;
 
   list<Node>::iterator* i;
 
@@ -225,8 +239,10 @@ int Graph::DFS(Node node, string operand1, string operand2, string result, list<
 	int adjSize = adj[node.verticeNum].size();
   for (int i = 0; i != adjSize; ++i) {
     Node currentNode = adj[node.verticeNum].at(i);
+    numberOfVisitedNotes++;
     if(!currentNode.visited) {
-      cout << "vertice num: " << currentNode.verticeNum << endl;
+      //cout << "vertice num: " << currentNode.verticeNum << endl;
+      /*
       for (int i = 0; i<currentNode.letters->size(); i++) {
         cout << currentNode.letters->at(i) << " " ;
       }
@@ -235,6 +251,7 @@ int Graph::DFS(Node node, string operand1, string operand2, string result, list<
         cout << currentNode.values->at(i) << " " ;
       }
       cout << endl;
+      */
 
       //aynı sayı kontrolü
       vector<int> temp = *currentNode.values;
@@ -271,9 +288,9 @@ int Graph::DFS(Node node, string operand1, string operand2, string result, list<
         continue;
       }
 
-      cout << "pushed" << endl;
+      //cout << "pushed" << endl;
       if (currentNode.letters->size() == letters.size() + 1) {
-        cout << "result found" << endl;
+        //cout << "result found" << endl;
         return currentNode.verticeNum;
       }
       int resultVertice = DFS(currentNode, operand1, operand2, result, letters, message);
@@ -318,20 +335,6 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
   }
 
   if(length1 >= 0 && length2 < 0) {
-/*
-    int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
-    int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
-    int carry = (carry1 + carry2) >= 10 ? 1 : 0;
-
-    int value1 = getValue(string(1, operand1.at(length1)), currentNode);
-    int valueR = getValue(string(1, result.at(resultLength)), currentNode);
-
-    if (!(value1 == -9 || valueR == -9)) {
-      if(!((value1 + carry) == valueR)) {
-        return false;
-      }
-    }
-    */
 
     length1--;
     length2--;
@@ -340,20 +343,6 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
   }
 
   if(length2 >= 0 && length1 < 0) {
-    /*
-    int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
-    int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
-    int carry = (carry1 + carry2) >= 10 ? 1 : 0;
-
-    int value2 = getValue(string(1, operand2.at(length2)), currentNode);
-    int valueR = getValue(string(1, result.at(resultLength)), currentNode);
-    
-    if (!(value2 == -9 || valueR == -9)) {
-      if(!((value2 + carry) == valueR)) {
-        return false;
-      }
-    }
-    */
 
     length1--;
     length2--;
@@ -364,36 +353,6 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 
   //ilk basamak kontrol
   if (resultLength == 0) {
-    /*
-    int pPrevCarry1;
-    if (length1 + 3 >= 0) {
-      pPrevCarry1 = getValue(string(1, operand1.at(length1 + 3)), currentNode);
-    } else {
-      pPrevCarry1 = 0;
-    }
-    int pPrevCarry2;
-    if (length2 + 3 >= 0) {
-      pPrevCarry2 =  getValue(string(1, operand2.at(length2 + 3)), currentNode);
-    } else {
-      pPrevCarry2 = 0;
-    }
-    int pPrevCarry = (pPrevCarry1 + pPrevCarry2) >= 10 ? 1 : 0;
-
-    int prevCarry1;
-    if (length1 + 2 >= 0) {
-      prevCarry1 = getValue(string(1, operand1.at(length1 + 2)), currentNode);
-    } else {
-      prevCarry1 = 0;
-    }
-    int prevCarry2;
-    if (length2 + 2 >= 0) {
-      prevCarry2 =  getValue(string(1, operand2.at(length2 + 2)), currentNode);
-    } else {
-      prevCarry2 = 0;
-    }
-    prevCarry1 += pPrevCarry;
-    int prevCarry = (prevCarry1 + prevCarry2) >= 10 ? 1 : 0;
-    */
 
     int carry1;
     if (length1 + 1 >= 0) {
@@ -591,9 +550,9 @@ int main(int argc, char* argv[])
   const char* filename = "TWO TWO FOUR.txt";
   const string searchMethod = "BFS";
 
-  const string operand1 = "TWO";
-  const string operand2 = "TWO";
-  const string result = "FOUR";
+  const string operand1 = "DOWN";
+  const string operand2 = "WWW";
+  const string result = "ERROR";
   const string outputFileName = "output";
 /*
   const string operand1 = "DOWN";
@@ -799,6 +758,21 @@ int main(int argc, char* argv[])
           newNode->verticeNum = verticeCounterNumber;
           newNode->letters->push_back(*letter);
           newNode->values->push_back(*number);
+
+          //aynı sayı kontrolü
+          /*
+          vector<int> temp = *newNode->values;
+          sort(temp.begin(), temp.end());
+          vector<int>::iterator valueIterator = unique(temp.begin(), temp.end());
+          bool hasDuplicates = !(valueIterator == temp.end());
+          if (hasDuplicates) {
+            //delete currentNode.letters;
+            //delete currentNode.values;
+            delete newNode;
+            verticeCounterNumber++;
+            continue;
+          }
+          */
           
 
           graph.addEdge(graph.adj[adjCounter].at(i), newNode); //Add a new node with every value to parent
@@ -820,9 +794,11 @@ int main(int argc, char* argv[])
 
   Node resultNode; 
   int dfsResult;
+  const clock_t begin_time = clock();
   if (searchMethod == "BFS") {
     resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
 
+    /*
     cout << "vertice num: " << resultNode.verticeNum << endl;
     for (int i = 0; i<resultNode.letters->size(); i++) {
       cout << resultNode.letters->at(i) << " " ;
@@ -832,6 +808,7 @@ int main(int argc, char* argv[])
       cout << resultNode.values->at(i) << " " ;
     }
     cout << endl;
+    */
   } else if (searchMethod == "DFS") {
     Message* newMessage = new Message(false);
     newMessage->success = false;
@@ -841,8 +818,9 @@ int main(int argc, char* argv[])
     int dfsResultParent = (dfsResult - onda)/10;
     resultNode = graph.adj[dfsResultParent].at(onda - 1);
 
-    cout << "vertice num: " << resultNode.verticeNum << endl;
+    //cout << "vertice num: " << resultNode.verticeNum << endl;
     
+    /*
     for (int i = 0; i<resultNode.letters->size(); i++) {
       cout << resultNode.letters->at(i) << " " ;
     }
@@ -851,14 +829,28 @@ int main(int argc, char* argv[])
       cout << resultNode.values->at(i) << " " ;
     }
     cout << endl;
+    */
     
   }
+  float finalTime = float( clock () - begin_time ) /  CLOCKS_PER_SEC;
 
   letters.push_front(poppedLetter);
 
   writeToFile(letters, numbers, resultNode, outputFileName);
 
-  cout << "hello world" << endl;
+  cout << "Algorithm: " << searchMethod << endl;
+  cout << "Number of the visited nodes: " << graph.numberOfVisitedNotes << endl;
+  cout << "Maximum number of nodes kept in the memory: " << graph.nodesInMemory << endl;
+  cout << "Running time: " << finalTime << " seconds" << endl;
+  cout << "Solution: ";
+  for (int i = 0; i<resultNode.letters->size(); i++) {
+    if (i == resultNode.letters->size() - 1) {
+      cout << resultNode.letters->at(i) << ": " << resultNode.values->at(i);
+      continue;
+    }
+      cout << resultNode.letters->at(i) << ": " << resultNode.values->at(i) << ", ";
+  }
+
   cin>> input;
   
   return 0;
