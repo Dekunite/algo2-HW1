@@ -77,7 +77,7 @@ class Graph {
     Graph(Node* vertex,int lettersSize);
     void addEdge(Node src, Node* dest);
     Node BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
-    Message DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters, Message newMessage);
+    int DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters, Message newMessage);
 
     Node* vertex;
     vector<Node>* adj;
@@ -192,12 +192,9 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
   return node;
 }
 
-Message Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters, Message message) {
+int Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters, Message message) {
  
   int verticeNum = node.verticeNum;
-  int resultVerticeNum = 0;
-  int resultI = 0;
-  bool resultFound = false;
 
   //mark current node visited and enqueue
   node.visited = true;
@@ -258,34 +255,15 @@ Message Graph::DFS(Node node, string operand1, string operand2, string result, l
       cout << "pushed" << endl;
       if (currentNode.letters->size() == letters.size() + 1) {
         cout << "result found" << endl;
-        if (!resultFound) {
-          resultVerticeNum = node.verticeNum;
-          resultI = i;
-        }
-        cout<<currentNode.verticeNum <<endl;
-        cout<<&currentNode.verticeNum <<endl;
-        //cout<<message->result->verticeNum <<endl;
-        //cout<<&message->result->verticeNum <<endl;
-
-        //message->result->verticeNum = currentNode.verticeNum;
-        //message->result->letters = currentNode.letters;
-        //message->result->values = currentNode.values;
-        message.result = &currentNode;
-        message.success = true;
-        return message;
-        break;
+        return currentNode.verticeNum;
       }
-      Message messageR = DFS(currentNode, operand1, operand2, result, letters, message);
-      if (messageR.success) {
-        return messageR;
+      int resultVertice = DFS(currentNode, operand1, operand2, result, letters, message);
+      if (resultVertice != 0) {
+        return resultVertice;
       }
-      //return resultNode;
-      //return resultNode;
     }
   }
-  message.success = false;
-  return message;
-  //return adj[resultVerticeNum].at(resultI);
+  return 0;
 }
 
 bool loopDigits(string operand1, string operand2, string result, Node currentNode) {
@@ -735,7 +713,7 @@ int main(int argc, char* argv[])
   }
 
   Node resultNode; 
-  Message dfsResult;
+  int dfsResult;
   if (searchMethod == "BFS") {
     resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
 
@@ -753,32 +731,22 @@ int main(int argc, char* argv[])
     newMessage->success = false;
 
     dfsResult = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
+    int onda = dfsResult%10;
+    int dfsResultParent = (dfsResult - onda)/10;
+    resultNode = graph.adj[dfsResultParent].at(onda - 1);
 
-    cout << "vertice num: " << dfsResult.result->verticeNum << endl;
-    for (int i = 0; i<dfsResult.result->letters->size(); i++) {
-      cout << dfsResult.result->letters->at(i) << " " ;
+    cout << "vertice num: " << resultNode.verticeNum << endl;
+    
+    for (int i = 0; i<resultNode.letters->size(); i++) {
+      cout << resultNode.letters->at(i) << " " ;
     }
     cout << endl;
-    for (int i = 0; i<dfsResult.result->values->size(); i++) {
-      cout << dfsResult.result->values->at(i) << " " ;
+    for (int i = 0; i<resultNode.values->size(); i++) {
+      cout << resultNode.values->at(i) << " " ;
     }
     cout << endl;
+    
   }
-
-
-  Message* newMessage = new Message(false);
-  newMessage->success = false;
-  //Message resultNode = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
-
-  cout << "vertice num: " << resultNode.verticeNum << endl;
-  for (int i = 0; i<resultNode.letters->size(); i++) {
-    cout << resultNode.letters->at(i) << " " ;
-  }
-  cout << endl;
-  for (int i = 0; i<resultNode.values->size(); i++) {
-    cout << resultNode.values->at(i) << " " ;
-  }
-  cout << endl;
 
   letters.push_front(poppedLetter);
 
