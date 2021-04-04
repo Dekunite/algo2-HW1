@@ -24,6 +24,7 @@ int getValue(string letter, Node currentNode);
 bool loopDigits(string operand1, string operand2, string result, Node currentNode);
 bool checkSummationRule(int operand1, int operand2, int result, int carry1);
 bool checkSummationRuleEnd(int operand, int carry);
+int getPrevCarry (string operand1, string operand2, string result, Node currentNode, int length1, int length2, int minsize);
 
 
 class Node {
@@ -129,6 +130,25 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
         }
         cout << endl;
 
+        try {
+          if (currentNode.values->at(0) == 9 ) {
+            if (currentNode.values->size() > 1) {
+              if (currentNode.values->at(1) == 3) {
+                if (currentNode.values->size() > 2) {
+                  if (currentNode.values->at(2) == 6) {
+                    cout <<endl;
+
+                  }
+                }
+              }
+            }
+          }
+          throw 555;
+
+        } catch (int e) {
+          cout << "nope" << endl;
+        }
+
         //aynı sayı kontrolü
         vector<int> temp = *currentNode.values;
         sort(temp.begin(), temp.end());
@@ -181,7 +201,6 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
         if (currentNode.letters->size() == letters.size() + 1) {
           cout << "result found" << endl;
           return currentNode;
-          //break;
         }
       }
     }
@@ -298,37 +317,97 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
 
   }
 
-/*
   if(length1 >= 0 && length2 < 0) {
+/*
     int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
     int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
     int carry = (carry1 + carry2) >= 10 ? 1 : 0;
 
     int value1 = getValue(string(1, operand1.at(length1)), currentNode);
     int valueR = getValue(string(1, result.at(resultLength)), currentNode);
-    if(!((value1 + carry) == valueR)) {
-      return false;
+
+    if (!(value1 == -9 || valueR == -9)) {
+      if(!((value1 + carry) == valueR)) {
+        return false;
+      }
     }
+    */
+
+    length1--;
+    length2--;
+    resultLength--;
+
   }
 
   if(length2 >= 0 && length1 < 0) {
+    /*
     int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
     int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
     int carry = (carry1 + carry2) >= 10 ? 1 : 0;
 
     int value2 = getValue(string(1, operand2.at(length2)), currentNode);
     int valueR = getValue(string(1, result.at(resultLength)), currentNode);
-    if(!((value2 + carry) == valueR)) {
-      return false;
+    
+    if (!(value2 == -9 || valueR == -9)) {
+      if(!((value2 + carry) == valueR)) {
+        return false;
+      }
     }
+    */
+
+    length1--;
+    length2--;
+    resultLength--;
   }
-  */
+  
   
 
   //ilk basamak kontrol
   if (resultLength == 0) {
-    int carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
-    int carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
+    /*
+    int pPrevCarry1;
+    if (length1 + 3 >= 0) {
+      pPrevCarry1 = getValue(string(1, operand1.at(length1 + 3)), currentNode);
+    } else {
+      pPrevCarry1 = 0;
+    }
+    int pPrevCarry2;
+    if (length2 + 3 >= 0) {
+      pPrevCarry2 =  getValue(string(1, operand2.at(length2 + 3)), currentNode);
+    } else {
+      pPrevCarry2 = 0;
+    }
+    int pPrevCarry = (pPrevCarry1 + pPrevCarry2) >= 10 ? 1 : 0;
+
+    int prevCarry1;
+    if (length1 + 2 >= 0) {
+      prevCarry1 = getValue(string(1, operand1.at(length1 + 2)), currentNode);
+    } else {
+      prevCarry1 = 0;
+    }
+    int prevCarry2;
+    if (length2 + 2 >= 0) {
+      prevCarry2 =  getValue(string(1, operand2.at(length2 + 2)), currentNode);
+    } else {
+      prevCarry2 = 0;
+    }
+    prevCarry1 += pPrevCarry;
+    int prevCarry = (prevCarry1 + prevCarry2) >= 10 ? 1 : 0;
+    */
+
+    int carry1;
+    if (length1 + 1 >= 0) {
+      carry1 = getValue(string(1, operand1.at(length1 + 1)), currentNode);
+    } else {
+      carry1 = 0;
+    }
+    int carry2;
+    if (length2 + 1 >= 0) {
+      carry2 =  getValue(string(1, operand2.at(length2 + 1)), currentNode);
+    } else {
+      carry2 = 0;
+    }
+    carry1 += getPrevCarry(operand1, operand2, result, currentNode, length1, length2, max(operand1.size(), operand2.size()));
     int carry = (carry1 + carry2) >= 10 ? 1 : 0;
 
     if (length1 == 0) {
@@ -347,6 +426,30 @@ bool loopDigits(string operand1, string operand2, string result, Node currentNod
   }
 
   return true;
+}
+
+int getPrevCarry (string operand1, string operand2, string result, Node currentNode, int length1, int length2, int maxsize) {
+  int pPrevCarry = 0;
+  int i = maxsize;
+  for (int k = 0; k<maxsize; k++) {
+    int pPrevCarry1;
+    if (length1 + i >= 0) {
+      pPrevCarry1 = getValue(string(1, operand1.at(length1 + i)), currentNode);
+    } else {
+      pPrevCarry1 = 0;
+    }
+    int pPrevCarry2;
+    if (length2 + i >= 0) {
+      pPrevCarry2 =  getValue(string(1, operand2.at(length2 + i)), currentNode);
+    } else {
+      pPrevCarry2 = 0;
+    }
+    pPrevCarry1 += pPrevCarry;
+    pPrevCarry = (pPrevCarry1 + pPrevCarry2) >= 10 ? 1 : 0;
+    i--;
+
+  }
+  return pPrevCarry;
 }
 
 int getValue(string letter, Node currentNode) {
@@ -460,6 +563,9 @@ void writeToFile(list<string> letters, vector<int> numbers, Node resultNode, str
     }
     outputFileName << "\t" << "1";
     int remainder = 9 - value;
+    if (remainder == 0) {
+      outputFileName << "\n";
+    }
     for (int k = 0; k < remainder; k++) {
       if (k == remainder -1) {
         outputFileName << "\t" << "." << "\n";
@@ -483,7 +589,7 @@ void pushLetters(string input) {
 int main(int argc, char* argv[])
 {
   const char* filename = "TWO TWO FOUR.txt";
-  const string searchMethod = "DFS";
+  const string searchMethod = "BFS";
 
   const string operand1 = "TWO";
   const string operand2 = "TWO";
