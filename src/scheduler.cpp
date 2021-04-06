@@ -55,13 +55,31 @@ Node::Node() {
   visited = false;
 }
 
+class Message {
+  public:
+    Message(bool success1);
+    Message();
+
+    bool success;
+    Node* result;
+};
+
+Message::Message(bool success1) {
+  success = success1;
+  result = new Node();
+}
+
+Message::Message() {
+
+}
+
 class Graph {
 
   public:
     Graph(Node* vertex,int lettersSize);
     void addEdge(Node src, Node* dest);
     Node BFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
-    string DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters);
+    int DFS(Node startVertex,string operand1, string operand2, string result, list<string> letters, Message newMessage);
 
     Node* vertex;
     vector<Node>* adj;
@@ -72,9 +90,11 @@ class Graph {
 Graph::Graph(Node* vertex1, int lettersSize) {
   vertex = vertex1;
   int verticeNum = vertex1->verticeNum;
-  long adjSize = pow(10, lettersSize) + 0.5;
+  long adjSize = pow(10, lettersSize);
   numberOfVisitedNotes = 0;
   nodesInMemory = 0;
+  //adjSize =100000000;
+  //adj boyutunu dinamik hale getir
   adj = new vector<Node>[adjSize];
 }
 
@@ -92,6 +112,9 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
   node.visited = true;
   queue.push_back(node);
 
+  list<Node>::iterator i;
+
+  int adjCounter = 0;
   while(!queue.empty()) {
     node = queue.front();
     queue.pop_front();
@@ -100,21 +123,9 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
       nodesInMemory = queue.size();
     }
 
-    int adjSize;
-    try{
-      adjSize = adj[node.verticeNum].size();
-    } catch (...) {
-      numberOfVisitedNotes += 10;
-      continue;
-    }
+    int adjSize = adj[node.verticeNum].size();
     for (int i = 0; i != adjSize; ++i) {
-      Node currentNode;
-      try{
-        currentNode = adj[node.verticeNum].at(i);
-      } catch (...) {
-        numberOfVisitedNotes++;
-        continue;
-      }
+      Node currentNode = adj[node.verticeNum].at(i);
       numberOfVisitedNotes++;
       if(!currentNode.visited) {
         currentNode.visited = true;
@@ -130,7 +141,6 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
         }
         cout << endl;
         */
-        
 
         /*
         try {
@@ -208,11 +218,14 @@ Node Graph::BFS(Node node, string operand1, string operand2, string result, list
         }
       }
     }
+
+    adjCounter++;
+
   }
   return node;
 }
 
-string Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters) {
+int Graph::DFS(Node node, string operand1, string operand2, string result, list<string> letters, Message message) {
  
   int verticeNum = node.verticeNum;
 
@@ -220,26 +233,15 @@ string Graph::DFS(Node node, string operand1, string operand2, string result, li
   node.visited = true;
   //cout << "vertice num: " << node.verticeNum << endl;
 
-  int errors = 0;
+  list<Node>::iterator* i;
+
   // Recur for all the vertices adjacent to this vertex
-  int adjSize;
-  try{
-    adjSize = adj[node.verticeNum].size();
-  } catch (...) {
-    numberOfVisitedNotes += 10;
-  }
+	int adjSize = adj[node.verticeNum].size();
   for (int i = 0; i != adjSize; ++i) {
-    Node currentNode;
-    try{
-      currentNode = adj[node.verticeNum].at(i);
-      numberOfVisitedNotes++;
-    } catch (...) {
-      numberOfVisitedNotes++;
-      continue;
-    }
+    Node currentNode = adj[node.verticeNum].at(i);
+    numberOfVisitedNotes++;
     if(!currentNode.visited) {
       //cout << "vertice num: " << currentNode.verticeNum << endl;
-      
       /*
       for (int i = 0; i<currentNode.letters->size(); i++) {
         cout << currentNode.letters->at(i) << " " ;
@@ -250,7 +252,6 @@ string Graph::DFS(Node node, string operand1, string operand2, string result, li
       }
       cout << endl;
       */
-      
 
       //aynı sayı kontrolü
       vector<int> temp = *currentNode.values;
@@ -290,18 +291,15 @@ string Graph::DFS(Node node, string operand1, string operand2, string result, li
       //cout << "pushed" << endl;
       if (currentNode.letters->size() == letters.size() + 1) {
         //cout << "result found" << endl;
-        string verticeAndI = to_string(node.verticeNum);
-        verticeAndI.append("+");
-        verticeAndI.append(to_string(i));
-        return verticeAndI;
+        return currentNode.verticeNum;
       }
-      string resultVertice = DFS(currentNode, operand1, operand2, result, letters);
-      if (resultVertice != "0") {
+      int resultVertice = DFS(currentNode, operand1, operand2, result, letters, message);
+      if (resultVertice != 0) {
         return resultVertice;
       }
     }
   }
-  return "0";
+  return 0;
 }
 
 bool loopDigits(string operand1, string operand2, string result, Node currentNode) {
@@ -552,9 +550,9 @@ int main(int argc, char* argv[])
   const char* filename = "TWO TWO FOUR.txt";
   const string searchMethod = "BFS";
 
-  const string operand1 = "TWO";
-  const string operand2 = "TWO";
-  const string result = "FOUR";
+  const string operand1 = "DOWN";
+  const string operand2 = "WWW";
+  const string result = "ERROR";
   const string outputFileName = "output";
 /*
   const string operand1 = "DOWN";
@@ -612,14 +610,12 @@ int main(int argc, char* argv[])
     }
   }
 
-  //letter checker
-  /*
+  /* letter checker
   list<string>::iterator ok;
   for (ok = letters.begin(); ok!= letters.end(); ++ok) {
     cout << *ok <<endl;
   }
   */
-
 
 /*
   cout << "operator1: " << operator1 << endl;
@@ -728,6 +724,8 @@ int main(int argc, char* argv[])
   }
   */
 
+  int nodeCount =pow(numbers.size(), letters.size());
+
   Node* startNode = new Node("start", 0, 0);
   Graph graph(startNode, letters.size());
   int verticeCounterNumber = 1;
@@ -740,7 +738,6 @@ int main(int argc, char* argv[])
       Node* newNode = new Node(*letter, *number, verticeCounterNumber);
       graph.addEdge(*graph.vertex, newNode); //Add a new node with every value to parent
       verticeCounterNumber++;
-      delete newNode;
     }
     break;
   }
@@ -750,71 +747,53 @@ int main(int argc, char* argv[])
   layerCount++;
   string poppedLetter = letters.front();
   letters.pop_front();
-  int bir = 1;
 
   for (list<string>::iterator letter = letters.begin(); letter!= letters.end(); ++letter) {
-    for(int k = 0; k<bir; k++) { //graph.adj[adjCounter].size()
-      for(int i = 0; i < 10; i++) { //i 8 e düşecek
+    for(int k = 0; k<layerCount; k++) { //graph.adj[adjCounter].size()
+      for(int i = 0; i < 10; i++) {
         for(vector<int>::iterator number = numbers.begin(); number!= numbers.end(); ++number) {
           //cout << graph.adj[adjCounter].at(i).letters->back() <<endl;
-          try {
-            //cout << *letter << ": " << *number <<endl;
-            Node* newNode = cloneNode(graph.adj[adjCounter].at(i));
-            newNode->verticeNum = verticeCounterNumber; 
-            newNode->letters->push_back(*letter);
-            newNode->values->push_back(*number);
-            //cout << "vertice num: " << newNode->verticeNum << endl;
-/*
-            for (int i = 0; i<newNode->letters->size(); i++) {
-              cout << newNode->letters->at(i) << " " ;
-            }
-            cout << endl;
-            for (int i = 0; i<newNode->values->size(); i++) {
-              cout << newNode->values->at(i) << " " ;
-            }
-            cout << endl;
-            */
+          
+          Node* newNode = cloneNode(graph.adj[adjCounter].at(i));
+          newNode->verticeNum = verticeCounterNumber;
+          newNode->letters->push_back(*letter);
+          newNode->values->push_back(*number);
 
-            //aynı sayı kontrolü
-            vector<int> temp = *newNode->values;
-            sort(temp.begin(), temp.end());
-            vector<int>::iterator valueIterator = unique(temp.begin(), temp.end());
-            bool hasDuplicates = !(valueIterator == temp.end());
-            if (hasDuplicates) {
-              //delete currentNode.letters;
-              //delete currentNode.values;
-              delete newNode;
-              verticeCounterNumber++;
-              //cout << "deleted"<< endl;
-              continue;
-            }
-
-
-            //cout << "added" <<endl;
-            graph.addEdge(graph.adj[adjCounter].at(i), newNode); //Add a new node with every value to parent
-            //delete newNode->letters;
-            //delete newNode->values;
+          //aynı sayı kontrolü
+          /*
+          vector<int> temp = *newNode->values;
+          sort(temp.begin(), temp.end());
+          vector<int>::iterator valueIterator = unique(temp.begin(), temp.end());
+          bool hasDuplicates = !(valueIterator == temp.end());
+          if (hasDuplicates) {
+            //delete currentNode.letters;
+            //delete currentNode.values;
             delete newNode;
-
-            verticeCounterNumber++;
-            continue;
-
-          } catch (...) {
             verticeCounterNumber++;
             continue;
           }
+          */
           
 
+          graph.addEdge(graph.adj[adjCounter].at(i), newNode); //Add a new node with every value to parent
+          //delete newNode->letters;
+          //delete newNode->values;
+          delete newNode;
+
+          verticeCounterNumber++;
 
         }
       }
       adjCounter++;
     }
-    bir *= 10;
+    if (layerCount == 0) {
+      layerCount = 1;
+    }
+    layerCount *= 10;
   }
 
   Node resultNode; 
-  string dfsResult;
+  int dfsResult;
   const clock_t begin_time = clock();
   if (searchMethod == "BFS") {
     resultNode = graph.BFS(*startNode, operand1, operand2, result, letters);
@@ -831,13 +810,13 @@ int main(int argc, char* argv[])
     cout << endl;
     */
   } else if (searchMethod == "DFS") {
-    dfsResult = graph.DFS(*startNode, operand1, operand2, result, letters);
-    string verticeNum = dfsResult.substr(0, dfsResult.find("+"));
-    //cout << verticeNum <<endl;
-    dfsResult.erase(0, dfsResult.find("+")+1);
-    //cout << dfsResult <<endl;
-    //int dfsResultParent = (dfsResult - onda)/10;
-    resultNode = graph.adj[stoi(verticeNum)].at(stoi(dfsResult));
+    Message* newMessage = new Message(false);
+    newMessage->success = false;
+
+    dfsResult = graph.DFS(*startNode, operand1, operand2, result, letters, newMessage);
+    int onda = dfsResult%10;
+    int dfsResultParent = (dfsResult - onda)/10;
+    resultNode = graph.adj[dfsResultParent].at(onda - 1);
 
     //cout << "vertice num: " << resultNode.verticeNum << endl;
     
