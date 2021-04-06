@@ -502,19 +502,21 @@ void pushLetters(string input) {
 
 int main(int argc, char* argv[])
 {
+  /*
   const string searchMethod = "BFS";
   const string operand1 = "down";
   const string operand2 = "www";
   const string result = "error";
   const string outputFileName = "output";
+  */
 
- /*
+ 
   const string searchMethod = argv[1];
   const string operand1 = argv[2];
   const string operand2 = argv[3];
   const string result = argv[4];
   const string outputFileName = argv[5];
-  */
+  
  list<string> letters;
  //add operand1 letters
  for (int i = 0; i < operand1.size(); i++) {
