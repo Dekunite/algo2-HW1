@@ -6,7 +6,7 @@ SRC     := src
 INCLUDE := include
 
 LIBRARIES   :=
-EXECUTABLE  := scheduler.exe
+EXECUTABLE  := sourceCodeWithConst.exe
 
 
 all: $(BIN)/$(EXECUTABLE)
